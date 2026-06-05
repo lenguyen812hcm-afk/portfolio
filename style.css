@@ -765,6 +765,7 @@ section { position: relative; z-index: 2; scroll-margin-top: 80px; }
 .theme-scale   { background: linear-gradient(145deg, #080618 0%, #1c1840 50%, #30289a 100%); }
 .theme-ui      { background: linear-gradient(145deg, #001414 0%, #002a2a 50%, #004444 100%); }
 .theme-fish    { background: linear-gradient(145deg, #000a18 0%, #001835 50%, #002e58 100%); }
+.theme-resolume{ background: linear-gradient(145deg, #16002e 0%, #4a0070 45%, #c01060 100%); }
 
 /* ===== CARD BODY ===== */
 .card-body { padding: 1.3rem 1.6rem 1.7rem; position: relative; z-index: 4; }

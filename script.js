@@ -173,6 +173,7 @@
     'theme-litting': 'tracking', 'theme-lidar': 'tracking', 'theme-ppt': 'tracking',
     'theme-character': 'tracking', 'theme-fish': 'ai',
     'theme-car': '3d', 'theme-demo': '3d', 'theme-scale': 'ui', 'theme-ui': 'ui',
+    'theme-resolume': 'mapping',
   };
   $$('.project-card').forEach(card => {
     const media = card.querySelector('.card-media');
