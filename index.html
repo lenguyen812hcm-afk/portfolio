@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lê Hữu Nguyên — Real-time Interactive / TouchDesigner Developer</title>
+  <meta name="description" content="Portfolio của Lê Hữu Nguyên — kỹ sư IoT/nhúng &amp; TouchDesigner Developer tại Tp.HCM. Thiết kế trải nghiệm tương tác thời gian thực: particle, tracking, AI camera, projection.">
+  <meta name="author" content="Lê Hữu Nguyên">
+  <meta property="og:title" content="Lê Hữu Nguyên — Interactive / TouchDesigner Portfolio">
+  <meta property="og:description" content="Trải nghiệm tương tác thời gian thực — công nghệ, cảm biến và nghệ thuật thị giác.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="avt.png">
+  <meta name="theme-color" content="#050509">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="avt.png">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js module map (resolves bare imports for the inline scene module) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- 3D background + FX overlays -->
+  <canvas id="webgl"></canvas>
+  <div class="fx-grid" aria-hidden="true"></div>
+  <div class="fx-noise" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#hero"><span class="dot"></span>LHN</a>
+      <ul class="nav-links">
+        <li class="hide-sm"><a href="#hero">Trang Chủ</a></li>
+        <li><a href="#about">Về Tôi</a></li>
+        <li><a href="#projects">Dự Án</a></li>
+        <li><a href="#contact">Liên Hệ</a></li>
+        <li><a href="CV_LEHUUNGUYEN.pdf" download class="nav-cta" data-magnetic>Tải CV</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge"><span class="live"></span>Sẵn sàng cho dự án mới · Tp.HCM</div>
+        <h1 class="hero-name">
+          <span class="line">Lê Hữu</span>
+          <span class="line grad">Nguyên</span>
+        </h1>
+        <div class="hero-role">
+          <span class="prompt">&gt;_</span><span class="rotator">TouchDesigner Developer</span><span class="caret"></span>
+        </div>
+        <p class="hero-desc">
+          Thiết kế trải nghiệm tương tác thời gian thực — nơi công nghệ, cảm biến
+          và nghệ thuật thị giác hòa làm một. Particle, motion tracking, AI camera &amp; projection mapping.
+        </p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary" data-magnetic>
+            Xem Dự Án
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="CV_LEHUUNGUYEN.pdf" download class="btn btn-outline" data-magnetic>
+            Tải CV
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Cuộn xuống</span>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats" aria-label="Số liệu nổi bật">
+    <div class="container" style="padding-top:2rem;padding-bottom:1rem;">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num" data-target="20">0<span class="suffix">+</span></div>
+          <div class="stat-label">Dự án tương tác</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="26">0</div>
+          <div class="stat-label">Video demo</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="7">0</div>
+          <div class="stat-label">Thể loại trải nghiệm</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="100">0<span class="suffix">%</span></div>
+          <div class="stat-label">Real-time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">01 — Về Tôi</span>
+        <h2 class="section-title">Kỹ thuật gặp <span class="accent">nghệ thuật</span></h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-text glass-panel">
+          <p>
+            Tôi là <strong>Lê Hữu Nguyên</strong> — kỹ sư <strong>IoT &amp; Trí Tuệ Nhân Tạo Ứng Dụng</strong>
+            tốt nghiệp Đại học Công Nghiệp Tp.HCM. Bên cạnh chuyên ngành kỹ thuật nhúng, tôi đam mê tạo ra
+            các <strong>trải nghiệm tương tác thời gian thực</strong> bằng TouchDesigner — kết nối phần cứng
+            cảm biến, lập trình và nghệ thuật thị giác thành một tổng thể sống động.
+          </p>
+          <p>
+            Từ particle &amp; fluid simulation, motion / depth tracking, AI camera đến projection mapping —
+            tôi xây dựng những hệ thống chạy mượt cho sự kiện, showroom và không gian triển lãm.
+          </p>
+          <div class="info-list">
+            <div class="info-row"><span class="lbl">Email</span><span>lenguyen812.hcm@gmail.com</span></div>
+            <div class="info-row"><span class="lbl">Điện thoại</span><span>0559&nbsp;866&nbsp;770</span></div>
+            <div class="info-row"><span class="lbl">Địa chỉ</span><span>Quận Gò Vấp, Tp.HCM</span></div>
+            <div class="info-row"><span class="lbl">Học vấn</span><span>ĐH Công Nghiệp Tp.HCM · 2020 – 2025</span></div>
+          </div>
+        </div>
+
+        <div class="about-side">
+          <div class="glass-panel panel-pad">
+            <h3 class="heading-sm">Kỹ Năng</h3>
+            <div class="skill-tags">
+              <span class="skill-highlight">TouchDesigner</span>
+              <span>Lập trình nhúng</span>
+              <span>STM32</span>
+              <span>ESP32</span>
+              <span>Raspberry Pi</span>
+              <span>C / C++ / Python</span>
+              <span>Altium · KiCad</span>
+              <span>UART · I2C · SPI</span>
+              <span>Linux</span>
+              <span>Matlab / Simulink</span>
+              <span>IoT / Wifi / BLE</span>
+              <span>C# · WinForms</span>
+            </div>
+          </div>
+
+          <div class="glass-panel panel-pad">
+            <h3 class="heading-sm">Hành Trình</h3>
+            <div class="timeline">
+              <div class="tl-item">
+                <p class="tl-role">Kỹ sư IoT &amp; AI Ứng Dụng</p>
+                <p class="tl-org">ĐH Công Nghiệp Tp.HCM · 2020 – 2025</p>
+                <p class="tl-desc">Kỹ thuật nhúng, xử lý tín hiệu, trí tuệ nhân tạo ứng dụng.</p>
+              </div>
+              <div class="tl-item">
+                <p class="tl-role">Technical Staff &amp; Intern</p>
+                <p class="tl-org">Kidkul AI Center</p>
+                <p class="tl-desc">Phát triển ứng dụng tương tác, hệ thống AI camera &amp; tracking.</p>
+              </div>
+              <div class="tl-item">
+                <p class="tl-role">Kỹ thuật điện tử</p>
+                <p class="tl-org">NLT Group</p>
+                <p class="tl-desc">Gia công, hàn &amp; lắp ráp bo mạch PCB.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">02 — Tuyển Tập</span>
+        <h2 class="section-title">Dự Án <span class="accent">Tương Tác</span></h2>
+        <p class="projects-intro">
+          Tuyển tập các trải nghiệm real-time xây dựng bằng TouchDesigner — từ particle, tracking,
+          AI camera đến projection &amp; UI. Nhấn ▶ để xem video demo trực tiếp.
+        </p>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">Tất cả</button>
+        <button class="filter-btn" data-filter="installation">Installation</button>
+        <button class="filter-btn" data-filter="brand">Thương hiệu</button>
+        <button class="filter-btn" data-filter="art">Nghệ thuật</button>
+        <button class="filter-btn" data-filter="tracking">Tracking</button>
+        <button class="filter-btn" data-filter="ai">AI</button>
+        <button class="filter-btn" data-filter="3d">3D</button>
+        <button class="filter-btn" data-filter="ui">UI</button>
+      </div>
+
+      <div class="projects-grid">
+
+        <!-- ══════════════════════════════════════
+             GROUP: Tương Tác Cát (3 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-sand">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-sand"><feGaussianBlur stdDeviation="8"/></filter></defs>
+              <ellipse cx="160" cy="140" rx="200" ry="60" fill="#d4956a" opacity="0.15" filter="url(#blur-sand)"/>
+              <g fill="white" opacity="0.25">
+                <circle cx="30" cy="130" r="4"/><circle cx="55" cy="115" r="2.5"/><circle cx="80" cy="128" r="3.5"/>
+                <circle cx="100" cy="108" r="2"/><circle cx="125" cy="120" r="4.5"/><circle cx="150" cy="100" r="2.5"/>
+                <circle cx="175" cy="115" r="3"/><circle cx="200" cy="98" r="4"/><circle cx="225" cy="110" r="2.5"/>
+                <circle cx="250" cy="95" r="3.5"/><circle cx="275" cy="108" r="2"/><circle cx="295" cy="120" r="3"/>
+                <circle cx="45" cy="145" r="2"/><circle cx="70" cy="150" r="3"/><circle cx="110" cy="140" r="2.5"/>
+                <circle cx="160" cy="148" r="4"/><circle cx="210" cy="138" r="2"/><circle cx="260" cy="145" r="3"/>
+                <circle cx="140" cy="78" r="2"/><circle cx="185" cy="68" r="3"/><circle cx="230" cy="75" r="2.5"/>
+              </g>
+              <path d="M0 145 Q80 120 160 130 Q240 140 320 118" stroke="white" stroke-width="1.5" fill="none" opacity="0.2"/>
+              <path d="M0 158 Q80 138 160 145 Q240 152 320 133" stroke="white" stroke-width="1" fill="none" opacity="0.15"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tương Tác Cát.mp4" data-yt="" controls preload="none"></video>
+            <video src="Tương Tác Cát Nghê Thuật.mp4" data-yt="" controls preload="none"></video>
+            <video src="tương tác cát tranh.mp4" data-yt="" controls preload="none"></video>
+            <video src="" data-gd="1Z93_x5Q59fbXBpyj9I4QsT2cMXI3mq5l" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Tương Tác Cát</button>
+              <button class="tab-btn">Nghệ Thuật</button>
+              <button class="tab-btn">Cát Tranh</button>
+              <button class="tab-btn">Camera Depth</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Interactive Installation</span>
+              <span class="tag tag-alt">4 phiên bản</span>
+            </div>
+            <h3>Tương Tác Cát</h3>
+            <p>Cát ảo phản ứng theo chuyển động tay người dùng theo thời gian thực. Particle system trong TouchDesigner mô phỏng vật lý hạt cát — mỗi phiên bản khám phá một phong cách nghệ thuật khác nhau.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: Tương Tác Chạm Logo (2 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-logo">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-logo"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <circle cx="160" cy="90" r="90" fill="#7c3aed" opacity="0.12" filter="url(#blur-logo)"/>
+              <g stroke="white" fill="none" opacity="0.2" stroke-width="1">
+                <polygon points="160,30 200,55 200,105 160,130 120,105 120,55" />
+                <polygon points="160,50 188,65 188,95 160,110 132,95 132,65" />
+                <polygon points="160,70 176,79 176,101 160,110 144,101 144,79" />
+              </g>
+              <g fill="white" opacity="0.3">
+                <circle cx="160" cy="90" r="5"/>
+                <circle cx="115" cy="55" r="2.5"/><circle cx="205" cy="55" r="2.5"/>
+                <circle cx="115" cy="125" r="2.5"/><circle cx="205" cy="125" r="2.5"/>
+              </g>
+              <g stroke="white" stroke-width="0.8" opacity="0.15" fill="none">
+                <line x1="160" y1="90" x2="115" y2="55"/><line x1="160" y1="90" x2="205" y2="55"/>
+                <line x1="160" y1="90" x2="115" y2="125"/><line x1="160" y1="90" x2="205" y2="125"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tương Tác Chạm Logo.mp4" data-yt="" controls preload="none"></video>
+            <video src="Tương Tác Chạm Logo (2).mp4" data-yt="" controls preload="none"></video>
+            <video src="" data-gd="1wP1ldyjFwf-x44lOXUopGCLpl8oGEbnX" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Phiên Bản 1</button>
+              <button class="tab-btn">Phiên Bản 2</button>
+              <button class="tab-btn">LED + Lidar</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Brand Interaction</span>
+              <span class="tag tag-alt">3 phiên bản</span>
+            </div>
+            <h3>Tương Tác Chạm Logo</h3>
+            <p>Logo phản ứng khi chạm — hạt vỡ, tụ lại và biến đổi theo ngón tay người dùng. Tích hợp touch tracking với particle system, tạo cảm giác vật lý sống động cho nhận diện thương hiệu.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: Vẽ Màu Chữ Uống Lượn (2 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-typo">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-typo"><feGaussianBlur stdDeviation="10"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="140" ry="70" fill="#16a34a" opacity="0.1" filter="url(#blur-typo)"/>
+              <path d="M20 140 C60 80 100 160 140 90 C180 20 220 130 260 70 C280 50 295 80 300 60" stroke="white" stroke-width="2.5" fill="none" opacity="0.25" stroke-linecap="round"/>
+              <path d="M20 155 C60 100 95 170 130 110 C170 45 210 145 250 85 C270 60 290 90 305 75" stroke="white" stroke-width="1.5" fill="none" opacity="0.15" stroke-linecap="round"/>
+              <g fill="white" opacity="0.3">
+                <circle cx="60" cy="108" r="3"/><circle cx="140" cy="90" r="3"/><circle cx="220" cy="98" r="3"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Vẽ Màu Chữ Uống lượn.mp4" data-yt="" controls preload="none"></video>
+            <video src="Vẽ Màu Chữ Uống Lượn (2).mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Phiên Bản 1</button>
+              <button class="tab-btn">Phiên Bản 2</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Generative Typography</span>
+              <span class="tag tag-alt">2 phiên bản</span>
+            </div>
+            <h3>Vẽ Màu Chữ Uống Lượn</h3>
+            <p>Chữ uốn lượn sinh ra từ cọ vẽ ảo — người dùng vẽ và ký tự xuất hiện dọc theo đường nét, màu sắc biến đổi theo tốc độ và áp lực. Kết hợp generative typography với vẽ thời gian thực.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: PPT Tracking (3 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-ppt">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-ppt"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <rect x="60" y="90" width="140" height="60" rx="2" fill="#1d4ed8" opacity="0.15" filter="url(#blur-ppt)"/>
+              <rect x="70" y="35" width="180" height="115" rx="4" stroke="white" stroke-width="1.5" fill="none" opacity="0.2"/>
+              <line x1="70" y1="55" x2="250" y2="55" stroke="white" stroke-width="0.8" opacity="0.15"/>
+              <rect x="82" y="62" width="80" height="6" rx="2" fill="white" opacity="0.15"/>
+              <rect x="82" y="74" width="55" height="4" rx="2" fill="white" opacity="0.1"/>
+              <rect x="82" y="84" width="65" height="4" rx="2" fill="white" opacity="0.1"/>
+              <circle cx="240" cy="95" r="12" stroke="white" stroke-width="1.5" fill="none" opacity="0.25"/>
+              <line x1="240" y1="83" x2="240" y2="107" stroke="white" stroke-width="1.2" opacity="0.2"/>
+              <line x1="228" y1="95" x2="252" y2="95" stroke="white" stroke-width="1.2" opacity="0.2"/>
+              <path d="M160 150 L210 150" stroke="white" stroke-width="1" stroke-dasharray="4 3" opacity="0.2"/>
+              <circle cx="240" cy="150" r="4" fill="white" opacity="0.3"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="demo_PPT_tracking.mov" data-yt="" controls preload="none"></video>
+            <video src="demo_tracking_PPT.mp4" data-yt="W0HFdKui6ck" controls preload="none"></video>
+            <video src="PTT_tracking theo người thuyết trình.mov" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Demo 1</button>
+              <button class="tab-btn">Demo 2</button>
+              <button class="tab-btn">Thuyết Trình</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Presentation Tech</span>
+              <span class="tag tag-alt">3 phiên bản</span>
+            </div>
+            <h3>PPT Tracking — Theo Dõi Người Thuyết Trình</h3>
+            <p>Hệ thống tracking tự động theo dõi người thuyết trình và điều hướng slide PowerPoint theo chuyển động — camera nhận diện vị trí, TouchDesigner xử lý tín hiệu và chuyển slide tương ứng theo thời gian thực.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: Bao Lì Xì / Lucky Money (2 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-lucky">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-lucky"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="100" ry="60" fill="#dc2626" opacity="0.2" filter="url(#blur-lucky)"/>
+              <rect x="100" y="45" width="120" height="90" rx="6" stroke="white" stroke-width="1.8" fill="none" opacity="0.25"/>
+              <path d="M100 65 L160 98 L220 65" stroke="white" stroke-width="1.5" fill="none" opacity="0.2"/>
+              <g fill="#fbbf24" opacity="0.5">
+                <polygon points="160,58 163,67 173,67 165,73 168,82 160,76 152,82 155,73 147,67 157,67" transform="scale(0.7) translate(69,30)"/>
+              </g>
+              <g stroke="#fbbf24" stroke-width="1.2" opacity="0.3">
+                <line x1="60" y1="40" x2="68" y2="48"/><line x1="56" y1="50" x2="66" y2="50"/>
+                <line x1="260" y1="40" x2="252" y2="48"/><line x1="264" y1="50" x2="254" y2="50"/>
+                <line x1="80" y1="150" x2="88" y2="142"/><line x1="240" y1="150" x2="232" y2="142"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="demo bao lì xì.mp4" data-yt="YX4iSodmqSg" controls preload="none"></video>
+            <video src="Touch Lucky Money Version1+.mp4" data-yt="-XkWmxdIczI" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Demo Bao Lì Xì</button>
+              <button class="tab-btn">Touch Lucky Money</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Event Experience</span>
+              <span class="tag tag-alt">2 phiên bản</span>
+            </div>
+            <h3>Bao Lì Xì Tương Tác</h3>
+            <p>Trải nghiệm lì xì số tương tác dịp Tết — chạm vào phong bì đỏ để mở và nhận lì xì may mắn. Kết hợp animation vui tươi với touch interaction thời gian thực, ứng dụng cho sự kiện và activation thương hiệu.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Đèn Pin Bản Đồ
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-flash">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="spotlight" cx="55%" cy="45%" r="35%">
+                  <stop offset="0%" stop-color="white" stop-opacity="0.35"/>
+                  <stop offset="60%" stop-color="white" stop-opacity="0.08"/>
+                  <stop offset="100%" stop-color="white" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <rect width="320" height="180" fill="url(#spotlight)"/>
+              <path d="M145 55 L155 45 L170 60 L175 50 L185 65 L178 70 L190 85 L180 82 L178 100 L165 88 L160 98 L155 85 L142 92 L148 78 L138 72 Z" stroke="white" fill="none" stroke-width="1.2" opacity="0.2"/>
+              <circle cx="175" cy="80" r="35" stroke="white" stroke-width="0.8" fill="none" opacity="0.12" stroke-dasharray="4 3"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Dùng Đèn Pin Khám Phá Bản Đồ Việt Nam.mp4" data-yt="Fjy47fDrFpY" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Interactive Experience</span></div>
+            <h3>Dùng Đèn Pin Khám Phá Bản Đồ Việt Nam</h3>
+            <p>Người dùng cầm đèn pin ảo soi vào bóng tối để khám phá bản đồ Việt Nam. Hiệu ứng ánh sáng thời gian thực tạo cảm giác tò mò và khám phá — vùng đất rực rỡ ẩn đằng sau bóng tối.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Litting Follow
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-litting">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-lit"><feGaussianBlur stdDeviation="18"/></filter>
+                <radialGradient id="glow-lit" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.5"/>
+                  <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="160" cy="75" r="50" fill="url(#glow-lit)" filter="url(#blur-lit)"/>
+              <g stroke="#fbbf24" stroke-width="1.5" opacity="0.3" stroke-linecap="round">
+                <line x1="160" y1="15" x2="160" y2="30"/>
+                <line x1="205" y1="30" x2="196" y2="39"/>
+                <line x1="220" y1="75" x2="205" y2="75"/>
+                <line x1="205" y1="120" x2="196" y2="111"/>
+                <line x1="160" y1="135" x2="160" y2="120"/>
+                <line x1="115" y1="120" x2="124" y2="111"/>
+                <line x1="100" y1="75" x2="115" y2="75"/>
+                <line x1="115" y1="30" x2="124" y2="39"/>
+              </g>
+              <circle cx="160" cy="75" r="18" stroke="white" stroke-width="2" fill="none" opacity="0.3"/>
+              <circle cx="160" cy="75" r="6" fill="white" opacity="0.5"/>
+              <path d="M80 155 Q160 130 240 150" stroke="white" stroke-width="1" stroke-dasharray="5 4" fill="none" opacity="0.2"/>
+              <circle cx="200" cy="148" r="4" fill="white" opacity="0.3"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Litting Follow.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Motion Tracking</span></div>
+            <h3>Litting Follow</h3>
+            <p>Ánh sáng tự động bám theo chuyển động — hệ thống nhận diện vị trí và điều hướng nguồn sáng ảo theo thời gian thực. Ứng dụng trong trình diễn sân khấu và không gian triển lãm.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Tương Tác Chạm
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-touch">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-touch"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <circle cx="160" cy="90" r="80" fill="#7c3aed" opacity="0.12" filter="url(#blur-touch)"/>
+              <g stroke="white" fill="none" opacity="0.2">
+                <circle cx="160" cy="90" r="15"/><circle cx="160" cy="90" r="32"/>
+                <circle cx="160" cy="90" r="52"/><circle cx="160" cy="90" r="74"/>
+              </g>
+              <circle cx="160" cy="90" r="6" fill="white" opacity="0.5"/>
+              <g stroke="white" stroke-width="0.8" opacity="0.12">
+                <line x1="160" y1="16" x2="160" y2="0"/><line x1="234" y1="90" x2="320" y2="90"/>
+                <line x1="160" y1="164" x2="160" y2="180"/><line x1="86" y1="90" x2="0" y2="90"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tương Tác Chạm.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Touch Interaction</span></div>
+            <h3>Tương Tác Chạm</h3>
+            <p>Các phần tử hình ảnh phản ứng và biến đổi theo điểm chạm của người dùng — mỗi tương tác tạo ra làn sóng hình ảnh sống động, biến màn hình thành bề mặt cảm ứng nghệ thuật.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: Tô Màu (2 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-paint">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-paint"><feGaussianBlur stdDeviation="8"/></filter></defs>
+              <rect x="0" y="0" width="320" height="45" fill="#ef4444" opacity="0.15" filter="url(#blur-paint)"/>
+              <rect x="0" y="45" width="320" height="45" fill="#f59e0b" opacity="0.15" filter="url(#blur-paint)"/>
+              <rect x="0" y="90" width="320" height="45" fill="#10b981" opacity="0.15" filter="url(#blur-paint)"/>
+              <rect x="0" y="135" width="320" height="45" fill="#3b82f6" opacity="0.15" filter="url(#blur-paint)"/>
+              <path d="M30 20 Q60 50 50 80 Q40 110 70 140 Q90 160 80 175" stroke="white" stroke-width="4" fill="none" opacity="0.25" stroke-linecap="round"/>
+              <path d="M130 10 Q150 60 140 100 Q130 140 155 170" stroke="white" stroke-width="3" fill="none" opacity="0.2" stroke-linecap="round"/>
+              <circle cx="30" cy="20" r="5" fill="white" opacity="0.35"/>
+              <circle cx="130" cy="10" r="4" fill="white" opacity="0.35"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tô Màu.mp4" data-yt="" controls preload="none"></video>
+            <video src="" data-gd="16Bi9r6bZ6MpYbhE67ObqhuHcdCyQNfPf" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Phiên Bản 1</button>
+              <button class="tab-btn">Nghệ Thuật</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Creative Tool</span>
+              <span class="tag tag-alt">2 phiên bản</span>
+            </div>
+            <h3>Tô Màu</h3>
+            <p>Công cụ tô màu tương tác — người dùng chạm và kéo để phủ màu lên canvas số. Shader màu sắc kết hợp với physics tạo hiệu ứng pha màu mượt mà và trực quan.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             GROUP: Vẽ Màu Kèm Thông Điệp (2 videos)
+        ══════════════════════════════════════ -->
+        <div class="project-card group-card">
+          <div class="card-media theme-message">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-msg"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <ellipse cx="130" cy="90" rx="80" ry="50" fill="#4338ca" opacity="0.15" filter="url(#blur-msg)"/>
+              <rect x="60" y="50" width="130" height="80" rx="8" stroke="white" stroke-width="1.5" fill="none" opacity="0.2"/>
+              <polygon points="85,130 95,148 115,130" stroke="white" stroke-width="1.2" fill="none" opacity="0.2"/>
+              <rect x="75" y="68" width="70" height="5" rx="2" fill="white" opacity="0.2"/>
+              <rect x="75" y="80" width="100" height="5" rx="2" fill="white" opacity="0.15"/>
+              <rect x="75" y="92" width="55" height="5" rx="2" fill="white" opacity="0.12"/>
+              <line x1="220" y1="40" x2="250" y2="140" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.25"/>
+              <rect x="245" y="35" width="18" height="8" rx="3" fill="white" opacity="0.25"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Vẽ Màu Kèm Thông Điệp.mp4" data-yt="" controls preload="none"></video>
+            <video src="" data-gd="1da4XRWEB0rZ_mPuJfJberdll5an48lMR" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="video-tabs">
+              <button class="tab-btn active">Phiên Bản 1</button>
+              <button class="tab-btn">Phiên Bản 2</button>
+            </div>
+            <div class="card-meta">
+              <span class="tag">Interactive Art</span>
+              <span class="tag tag-alt">2 phiên bản</span>
+            </div>
+            <h3>Vẽ Màu Kèm Thông Điệp</h3>
+            <p>Kết hợp vẽ màu ảo với hiển thị thông điệp — người dùng vẽ và chữ xuất hiện theo đường nét, giao thoa giữa nghệ thuật cá nhân và truyền thông. Thiết kế cho không gian sự kiện.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Tương Tác Sản Phẩm
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-product">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-prod"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <rect x="100" y="60" width="120" height="80" rx="4" fill="#0284c7" opacity="0.12" filter="url(#blur-prod)"/>
+              <g stroke="white" fill="none" opacity="0.22" stroke-width="1.4">
+                <rect x="110" y="55" width="90" height="70" rx="3"/>
+                <path d="M110 55 L140 40 L230 40 L200 55"/>
+                <path d="M200 55 L230 40 L230 110 L200 125"/>
+                <line x1="200" y1="55" x2="200" y2="125"/>
+              </g>
+              <g fill="white" opacity="0.35">
+                <circle cx="240" cy="50" r="3"/><circle cx="230" cy="40" r="2"/>
+              </g>
+              <g stroke="white" stroke-width="1" opacity="0.15">
+                <line x1="155" y1="145" x2="155" y2="165"/><line x1="165" y1="145" x2="165" y2="165"/>
+                <line x1="145" y1="155" x2="175" y2="155"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tương Tác Sản Phẩm.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Product Showcase</span></div>
+            <h3>Tương Tác Sản Phẩm</h3>
+            <p>Trưng bày sản phẩm tương tác — khách hàng chạm để xem chi tiết, xoay và khám phá từng góc độ theo thời gian thực. Ứng dụng cho kiosk bán lẻ, showroom và không gian triển lãm.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Tương Tác Các Box có Logo
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-boxes">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-box"><feGaussianBlur stdDeviation="10"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="120" ry="60" fill="#a855f7" opacity="0.12" filter="url(#blur-box)"/>
+              <g stroke="white" fill="none" opacity="0.25" stroke-width="1.3">
+                <rect x="70" y="45" width="50" height="50" rx="4"/>
+                <rect x="135" y="30" width="50" height="50" rx="4"/>
+                <rect x="195" y="55" width="50" height="50" rx="4"/>
+                <rect x="100" y="105" width="50" height="50" rx="4"/>
+                <rect x="170" y="110" width="50" height="50" rx="4"/>
+              </g>
+              <g fill="white" opacity="0.2">
+                <circle cx="95" cy="70" r="6"/><circle cx="160" cy="55" r="6"/>
+                <circle cx="220" cy="80" r="6"/><circle cx="125" cy="130" r="6"/>
+                <circle cx="195" cy="135" r="6"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Tương Tác Các Box có Logo.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Brand Interaction</span></div>
+            <h3>Tương Tác Các Box có Logo</h3>
+            <p>Các hộp chứa logo tương tác vật lý — va chạm, nảy và phản ứng theo điểm chạm của người dùng. Biến nhận diện thương hiệu thành trải nghiệm chơi sinh động và đáng nhớ.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Lidar Interactive
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-lidar">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-lidar"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <circle cx="160" cy="170" r="100" fill="#16a34a" opacity="0.12" filter="url(#blur-lidar)"/>
+              <g stroke="#4ade80" fill="none" opacity="0.25">
+                <path d="M160 170 A40 40 0 0 1 200 130"/><path d="M160 170 A70 70 0 0 1 230 110"/>
+                <path d="M160 170 A100 100 0 0 1 255 90"/><path d="M160 170 A130 130 0 0 1 273 68"/>
+              </g>
+              <line x1="160" y1="170" x2="255" y2="55" stroke="#4ade80" stroke-width="1.5" opacity="0.35"/>
+              <circle cx="255" cy="55" r="4" fill="#4ade80" opacity="0.5"/>
+              <g stroke="white" opacity="0.15" fill="none" stroke-width="0.8">
+                <line x1="100" y1="0" x2="100" y2="180"/><line x1="160" y1="0" x2="160" y2="180"/>
+                <line x1="220" y1="0" x2="220" y2="180"/><line x1="0" y1="60" x2="320" y2="60"/>
+                <line x1="0" y1="120" x2="320" y2="120"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Lidar Interactive.mp4" data-yt="OJR6UpEL68o" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Lidar · Touchless</span></div>
+            <h3>Lidar Interactive</h3>
+            <p>Cảm biến Lidar theo dõi chuyển động và vị trí người dùng, tạo trải nghiệm tương tác không chạm (touchless) với độ chính xác cao. Ứng dụng cho không gian công cộng và installation nghệ thuật.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Character
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-character">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-char"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="80" ry="70" fill="#db2777" opacity="0.12" filter="url(#blur-char)"/>
+              <circle cx="160" cy="55" r="22" stroke="white" stroke-width="1.8" fill="none" opacity="0.25"/>
+              <line x1="160" y1="77" x2="160" y2="125" stroke="white" stroke-width="1.8" opacity="0.22" stroke-linecap="round"/>
+              <line x1="130" y1="95" x2="190" y2="95" stroke="white" stroke-width="1.8" opacity="0.22" stroke-linecap="round"/>
+              <line x1="160" y1="125" x2="140" y2="155" stroke="white" stroke-width="1.8" opacity="0.22" stroke-linecap="round"/>
+              <line x1="160" y1="125" x2="180" y2="155" stroke="white" stroke-width="1.8" opacity="0.22" stroke-linecap="round"/>
+              <g stroke="#f472b6" stroke-width="1" fill="none" opacity="0.2">
+                <path d="M90 30 Q80 60 95 90"/><path d="M230 30 Q240 60 225 90"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Character.mp4" data-yt="Tp5a4M4sxcM" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Character Animation</span></div>
+            <h3>Character</h3>
+            <p>Nhân vật ảo chuyển động và phản ứng theo tương tác người dùng theo thời gian thực — body tracking điều khiển hoạt hình nhân vật, tạo linh vật số sống động cho thương hiệu và sự kiện.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Smoke
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-smoke">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-smoke"><feGaussianBlur stdDeviation="10"/></filter></defs>
+              <ellipse cx="160" cy="140" rx="80" ry="30" fill="#94a3b8" opacity="0.1" filter="url(#blur-smoke)"/>
+              <path d="M120 170 C115 140 130 120 120 90 C110 60 135 50 130 20" stroke="white" stroke-width="3" fill="none" opacity="0.15" stroke-linecap="round"/>
+              <path d="M155 170 C150 138 165 115 155 82 C145 50 168 42 162 10" stroke="white" stroke-width="4" fill="none" opacity="0.2" stroke-linecap="round"/>
+              <path d="M190 170 C188 142 200 122 192 95 C184 68 205 58 198 28" stroke="white" stroke-width="3" fill="none" opacity="0.15" stroke-linecap="round"/>
+              <ellipse cx="155" cy="172" rx="40" ry="6" fill="white" opacity="0.1"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Smoke.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Fluid Simulation</span></div>
+            <h3>Smoke</h3>
+            <p>Hiệu ứng khói ảo sinh ra và lan tỏa theo tương tác người dùng — mô phỏng vật lý fluid dynamics trong TouchDesigner tạo visual ấn tượng, mềm mại và hữu cơ.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Luxury Sports Car
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-car">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-car"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <ellipse cx="160" cy="120" rx="140" ry="30" fill="#92400e" opacity="0.15" filter="url(#blur-car)"/>
+              <path d="M40 110 L70 85 L120 60 L200 58 L255 85 L280 110 L280 125 L40 125 Z" stroke="#d97706" stroke-width="1.5" fill="none" opacity="0.25"/>
+              <path d="M80 85 L110 65 L200 63 L240 85" stroke="#d97706" stroke-width="1" fill="none" opacity="0.2"/>
+              <circle cx="85" cy="125" r="15" stroke="#d97706" stroke-width="1.5" fill="none" opacity="0.3"/>
+              <circle cx="235" cy="125" r="15" stroke="#d97706" stroke-width="1.5" fill="none" opacity="0.3"/>
+              <circle cx="85" cy="125" r="6" stroke="#d97706" stroke-width="1" fill="none" opacity="0.2"/>
+              <circle cx="235" cy="125" r="6" stroke="#d97706" stroke-width="1" fill="none" opacity="0.2"/>
+              <line x1="40" y1="125" x2="280" y2="125" stroke="white" stroke-width="0.8" opacity="0.12"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="Luxury sports car.mp4" data-yt="Oqw9FPZFjH0" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">3D · Automotive</span></div>
+            <h3>Luxury Sports Car</h3>
+            <p>Trình chiếu xe thể thao cao cấp dạng tương tác — xoay, zoom và khám phá chi tiết xe theo thời gian thực. Ứng dụng cho showroom, triển lãm ô tô và sự kiện ra mắt sản phẩm cao cấp.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Demo Interactive
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-demo">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-demo"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <circle cx="160" cy="90" r="70" fill="#00d4ff" opacity="0.08" filter="url(#blur-demo)"/>
+              <polygon points="130,65 130,115 175,90" stroke="white" fill="none" stroke-width="2" opacity="0.25"/>
+              <g stroke="#00d4ff" stroke-width="1" opacity="0.2" fill="none">
+                <circle cx="160" cy="90" r="45"/><circle cx="160" cy="90" r="65"/>
+              </g>
+              <g fill="#00d4ff" opacity="0.35">
+                <circle cx="105" cy="60" r="3"/><circle cx="215" cy="60" r="3"/>
+                <circle cx="105" cy="120" r="3"/><circle cx="215" cy="120" r="3"/>
+              </g>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="demo_interactive.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Interactive Demo</span></div>
+            <h3>Demo Interactive</h3>
+            <p>Demo tổng hợp các kỹ thuật tương tác đa dạng trong TouchDesigner — showcase particle, shader và input handling kết hợp, dùng để trình bày năng lực và thử nghiệm ý tưởng mới.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Scale + Next
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-scale">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-scale"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <rect x="100" y="55" width="120" height="70" rx="4" fill="#4f46e5" opacity="0.12" filter="url(#blur-scale)"/>
+              <g stroke="white" fill="none" opacity="0.2" stroke-width="1.5" stroke-linecap="round">
+                <line x1="160" y1="30" x2="160" y2="10"/><line x1="152" y1="18" x2="160" y2="10"/><line x1="168" y1="18" x2="160" y2="10"/>
+                <line x1="160" y1="150" x2="160" y2="170"/><line x1="152" y1="162" x2="160" y2="170"/><line x1="168" y1="162" x2="160" y2="170"/>
+                <line x1="30" y1="90" x2="10" y2="90"/><line x1="18" y1="82" x2="10" y2="90"/><line x1="18" y1="98" x2="10" y2="90"/>
+                <line x1="290" y1="90" x2="310" y2="90"/><line x1="302" y1="82" x2="310" y2="90"/><line x1="302" y1="98" x2="310" y2="90"/>
+              </g>
+              <rect x="115" y="65" width="90" height="50" rx="3" stroke="white" stroke-width="1.2" fill="none" opacity="0.18"/>
+              <circle cx="160" cy="90" r="5" fill="white" opacity="0.4"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="scale+next.mp4" data-yt="" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">UI · Transition</span></div>
+            <h3>Scale + Next</h3>
+            <p>Hiệu ứng phóng to thu nhỏ và chuyển cảnh mượt mà — transition scale kết hợp navigation tạo luồng trình bày nội dung động, ứng dụng cho màn hình digital signage và interactive kiosk.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Bắt Cá Tương Tác AI
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-fish">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-fish"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <!-- water glow -->
+              <ellipse cx="160" cy="148" rx="190" ry="55" fill="#0066bb" opacity="0.14" filter="url(#blur-fish)"/>
+              <!-- ripple ellipses -->
+              <g stroke="#38bdf8" fill="none" opacity="0.1" stroke-width="1">
+                <ellipse cx="152" cy="132" rx="38" ry="10"/>
+                <ellipse cx="152" cy="132" rx="70" ry="19"/>
+                <ellipse cx="152" cy="132" rx="115" ry="30"/>
+              </g>
+              <!-- main fish (being tracked) -->
+              <g stroke="white" fill="none" opacity="0.28" stroke-width="1.4" stroke-linecap="round">
+                <path d="M108 80 Q148 63 182 80 Q148 97 108 80Z"/>
+                <path d="M103 80 L88 70 L88 90Z"/>
+                <circle cx="175" cy="76" r="2.2" fill="white"/>
+              </g>
+              <!-- AI bounding box corners -->
+              <g stroke="#00d4ff" fill="none" opacity="0.45" stroke-width="1.2" stroke-linecap="round">
+                <path d="M88 58 L88 52 L95 52"/>
+                <path d="M188 58 L188 52 L181 52"/>
+                <path d="M88 102 L88 108 L95 108"/>
+                <path d="M188 102 L188 108 L181 108"/>
+              </g>
+              <!-- centre tracking dot -->
+              <circle cx="138" cy="80" r="2.5" fill="#00d4ff" opacity="0.5"/>
+              <!-- fish 2 -->
+              <g stroke="white" fill="none" opacity="0.18" stroke-width="1.1">
+                <path d="M218 112 Q244 102 268 112 Q244 122 218 112Z"/>
+                <path d="M213 112 L202 105 L202 119Z"/>
+                <circle cx="261" cy="109" r="1.6" fill="white"/>
+              </g>
+              <!-- fish 3 small -->
+              <g stroke="white" fill="none" opacity="0.13" stroke-width="0.9">
+                <path d="M42 102 L60 95 L42 95Z M60 95 Q76 101 60 107Z"/>
+              </g>
+              <!-- webcam icon top-right -->
+              <g stroke="white" fill="none" opacity="0.22" stroke-width="1.1">
+                <rect x="268" y="14" width="30" height="21" rx="3"/>
+                <circle cx="283" cy="24" r="5.5"/>
+                <circle cx="283" cy="24" r="2.2" fill="white" opacity="0.4"/>
+                <path d="M298 18 L310 13 L310 35 L298 30Z"/>
+              </g>
+              <!-- scan line -->
+              <line x1="0" y1="80" x2="320" y2="80" stroke="#00d4ff" stroke-width="0.7" opacity="0.07" stroke-dasharray="9 7"/>
+              <!-- AI label -->
+              <rect x="88" y="52" width="22" height="10" rx="2" fill="#00d4ff" opacity="0.18"/>
+              <text x="99" y="60" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="5.5" fill="#00d4ff" opacity="0.7" font-weight="600">AI</text>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="" data-gd="1of9shAsS-BltCh8613Dd4GKVw3pkXLfj" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">AI · Camera Tracking</span></div>
+            <h3>Bắt Cá Tương Tác AI</h3>
+            <p>Game bắt cá sử dụng AI camera theo dõi chuyển động người chơi theo thời gian thực. Webcam nhận diện và tracking vị trí, cho phép tương tác bắt cá ảo không cần chạm màn hình — ứng dụng cho không gian vui chơi và sự kiện.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: UI
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-ui">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-ui"><feGaussianBlur stdDeviation="12"/></filter></defs>
+              <rect x="60" y="30" width="200" height="130" rx="4" fill="#0d9488" opacity="0.1" filter="url(#blur-ui)"/>
+              <rect x="60" y="30" width="200" height="130" rx="6" stroke="white" stroke-width="1.5" fill="none" opacity="0.2"/>
+              <line x1="60" y1="52" x2="260" y2="52" stroke="white" stroke-width="1" opacity="0.15"/>
+              <g fill="white" opacity="0.3">
+                <circle cx="74" cy="41" r="4"/><circle cx="88" cy="41" r="4"/><circle cx="102" cy="41" r="4"/>
+              </g>
+              <rect x="74" y="64" width="55" height="40" rx="3" stroke="white" stroke-width="1" fill="none" opacity="0.15"/>
+              <rect x="138" y="64" width="35" height="18" rx="2" fill="white" opacity="0.08"/>
+              <rect x="138" y="86" width="55" height="18" rx="2" fill="white" opacity="0.06"/>
+              <rect x="74" y="112" width="110" height="6" rx="2" fill="white" opacity="0.1"/>
+              <rect x="74" y="124" width="75" height="6" rx="2" fill="white" opacity="0.08"/>
+              <rect x="205" y="112" width="40" height="20" rx="3" stroke="#00d4ff" stroke-width="1" fill="none" opacity="0.25"/>
+            </svg>
+            <div class="thumb-overlay">
+              <button class="play-btn" aria-label="Phát video">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <video src="UI.mp4" data-yt="fzydHecS1z0" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">UI Design</span></div>
+            <h3>UI</h3>
+            <p>Giao diện người dùng tương tác thiết kế hoàn toàn bằng TouchDesigner — HUD elements, real-time controls và visual feedback cho hệ thống trình chiếu và installation.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">03 — Kết Nối</span>
+        <h2 class="section-title">Cùng tạo điều <span class="accent">tương tác</span></h2>
+        <p class="contact-intro">Tôi luôn sẵn sàng cho các dự án tương tác, cài đặt nghệ thuật, hoặc cơ hội hợp tác mới. Hãy nhắn cho tôi.</p>
+      </div>
+      <div class="contact-grid">
+        <a href="mailto:lenguyen812.hcm@gmail.com" class="contact-card">
+          <div class="contact-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+          </div>
+          <div>
+            <p class="contact-lbl">Email</p>
+            <p class="contact-val">lenguyen812.hcm@gmail.com</p>
+          </div>
+        </a>
+        <a href="tel:0559866770" class="contact-card">
+          <div class="contact-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>
+            <p class="contact-lbl">Điện thoại</p>
+            <p class="contact-val">0559 866 770</p>
+          </div>
+        </a>
+        <div class="contact-card">
+          <div class="contact-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <p class="contact-lbl">Địa chỉ</p>
+            <p class="contact-val">Quận Gò Vấp, Tp.HCM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <p>© 2026 <strong style="color:var(--text);font-weight:600;">Lê Hữu Nguyên</strong> &nbsp;·&nbsp; Real-time Interactive / TouchDesigner</p>
+      <p>Thiết kế &amp; phát triển bởi <a href="mailto:lenguyen812.hcm@gmail.com">LHN</a></p>
+      <button class="back-top" data-magnetic>↑ Lên đầu trang</button>
+    </div>
+  </footer>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="script.js"></script>
+
+  <!-- 3D background scene (Three.js) -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canvas = document.getElementById('webgl');
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    } catch (err) {
+      canvas.style.display = 'none';
+      console.warn('WebGL unavailable — falling back to CSS background.', err);
+    }
+
+    if (renderer) {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x050509, 1);
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x050509, 0.026);
+
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 220);
+      camera.position.set(0, 0.6, 9);
+
+      const COL_CYAN = new THREE.Color(0x00e5ff);
+      const COL_VIOLET = new THREE.Color(0xa855f7);
+      const COL_MAGENTA = new THREE.Color(0xff3d9a);
+      const tmpCol = new THREE.Color();
+
+      /* ---------- STARFIELD ---------- */
+      const STAR_COUNT = 2600;
+      const starGeo = new THREE.BufferGeometry();
+      const sPos = new Float32Array(STAR_COUNT * 3);
+      const sCol = new Float32Array(STAR_COUNT * 3);
+      const palette = [COL_CYAN, COL_VIOLET, new THREE.Color(0xffffff)];
+      for (let i = 0; i < STAR_COUNT; i++) {
+        sPos[i*3]   = (Math.random() - 0.5) * 95;
+        sPos[i*3+1] = (Math.random() - 0.5) * 58;
+        sPos[i*3+2] = -70 + Math.random() * 95;
+        const c = palette[(Math.random() * palette.length) | 0];
+        sCol[i*3] = c.r; sCol[i*3+1] = c.g; sCol[i*3+2] = c.b;
+      }
+      starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+      starGeo.setAttribute('color', new THREE.BufferAttribute(sCol, 3));
+      const starMat = new THREE.PointsMaterial({
+        size: 0.16, sizeAttenuation: true, vertexColors: true,
+        transparent: true, opacity: 0.9, depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const stars = new THREE.Points(starGeo, starMat);
+      scene.add(stars);
+
+      /* ---------- WIREFRAME TERRAIN ---------- */
+      const SEG = 64, SIZE = 80;
+      const terrGeo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
+      const baseXY = terrGeo.attributes.position.array.slice();
+      const terrMat = new THREE.MeshBasicMaterial({
+        color: COL_CYAN.clone(), wireframe: true,
+        transparent: true, opacity: 0.32,
+      });
+      const terrain = new THREE.Mesh(terrGeo, terrMat);
+      terrain.rotation.x = -Math.PI / 2;
+      terrain.position.y = -6.5;
+      scene.add(terrain);
+
+      /* ---------- HERO ICOSAHEDRON ---------- */
+      const heroGroup = new THREE.Group();
+      const icoGeo = new THREE.IcosahedronGeometry(1.6, 1);
+      const icoOuter = new THREE.Mesh(icoGeo, new THREE.MeshBasicMaterial({
+        color: COL_CYAN.clone(), wireframe: true, transparent: true, opacity: 0.6,
+      }));
+      const icoInner = new THREE.Mesh(new THREE.IcosahedronGeometry(1.12, 0), new THREE.MeshBasicMaterial({
+        color: COL_VIOLET.clone(), wireframe: true, transparent: true, opacity: 0.32,
+      }));
+      const icoDots = new THREE.Points(icoGeo, new THREE.PointsMaterial({
+        color: 0xffffff, size: 0.07, transparent: true, opacity: 0.9,
+        depthWrite: false, blending: THREE.AdditiveBlending,
+      }));
+      heroGroup.add(icoOuter, icoInner, icoDots);
+      scene.add(heroGroup);
+
+      /* ---------- LAYOUT (responsive placement of hero object) ---------- */
+      let heroBaseX = 3.2, heroBaseScale = 1;
+      function layout() {
+        const w = window.innerWidth;
+        if (w > 980) { heroBaseX = 3.4; heroBaseScale = 1; }
+        else if (w > 640) { heroBaseX = 0; heroBaseScale = 0.9; }
+        else { heroBaseX = 0; heroBaseScale = 0.7; }
+      }
+      layout();
+
+      /* ---------- BLOOM (optional, graceful) ---------- */
+      let composer = null;
+      async function setupBloom() {
+        try {
+          const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = await Promise.all([
+            import('three/addons/postprocessing/EffectComposer.js'),
+            import('three/addons/postprocessing/RenderPass.js'),
+            import('three/addons/postprocessing/UnrealBloomPass.js'),
+            import('three/addons/postprocessing/OutputPass.js'),
+          ]);
+          composer = new EffectComposer(renderer);
+          composer.addPass(new RenderPass(scene, camera));
+          const bloom = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight), 0.75, 0.5, 0.15
+          );
+          composer.addPass(bloom);
+          composer.addPass(new OutputPass());
+          composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+          composer.setSize(window.innerWidth, window.innerHeight);
+        } catch (e) {
+          composer = null; // fall back to direct render
+        }
+      }
+
+      /* ---------- INTERACTION STATE ---------- */
+      const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+      window.addEventListener('mousemove', e => {
+        pointer.tx = (e.clientX / window.innerWidth) * 2 - 1;
+        pointer.ty = (e.clientY / window.innerHeight) * 2 - 1;
+      });
+
+      let scrollTotal = 0, scrollLerp = 0, heroLocal = 0, heroLerp = 0;
+      function readScroll() {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        scrollTotal = max > 0 ? window.scrollY / max : 0;
+        heroLocal = Math.min(window.scrollY / window.innerHeight, 1);
+      }
+      window.addEventListener('scroll', readScroll, { passive: true });
+      readScroll();
+
+      /* ---------- RESIZE ---------- */
+      function onResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+        layout();
+        readScroll();
+        if (prefersReduced) renderFrame(0);
+      }
+      window.addEventListener('resize', onResize);
+
+      /* ---------- ANIMATE ---------- */
+      const clock = new THREE.Clock();
+      const terrPos = terrGeo.attributes.position;
+
+      function renderFrame(t) {
+        // colour journey: cyan -> violet -> magenta
+        if (scrollLerp < 0.5) tmpCol.copy(COL_CYAN).lerp(COL_VIOLET, scrollLerp * 2);
+        else tmpCol.copy(COL_VIOLET).lerp(COL_MAGENTA, (scrollLerp - 0.5) * 2);
+        terrMat.color.copy(tmpCol);
+        icoOuter.material.color.copy(tmpCol);
+
+        // terrain waves
+        for (let i = 0; i < terrPos.count; i++) {
+          const x = baseXY[i*3], y = baseXY[i*3+1];
+          const z = Math.sin(x * 0.28 + t) * 1.1 + Math.cos(y * 0.32 + t * 0.8) * 1.1
+                  + Math.sin((x + y) * 0.12 + t * 1.3) * 0.6;
+          terrPos.setZ(i, z);
+        }
+        terrPos.needsUpdate = true;
+
+        // starfield drift toward camera
+        const sp = starGeo.attributes.position.array;
+        const speed = 0.04 + scrollLerp * 0.5;
+        for (let i = 2; i < sp.length; i += 3) {
+          sp[i] += speed;
+          if (sp[i] > 25) sp[i] -= 95;
+        }
+        starGeo.attributes.position.needsUpdate = true;
+        stars.rotation.z += 0.0004;
+
+        // hero object: rotate, breathe, fade out on scroll
+        const vis = 1 - heroLerp;
+        const breathe = 1 + Math.sin(t * 1.5) * 0.05;
+        heroGroup.position.set(heroBaseX, 0.3 + heroLerp * 4, 0);
+        heroGroup.scale.setScalar(heroBaseScale * breathe * Math.max(vis, 0.0001));
+        heroGroup.rotation.y += 0.003;
+        heroGroup.rotation.x = pointer.y * 0.3;
+        heroGroup.rotation.z = pointer.x * 0.15;
+        icoOuter.material.opacity = 0.6 * vis;
+        icoInner.material.opacity = 0.32 * vis;
+        icoDots.material.opacity = 0.9 * vis;
+
+        // camera: parallax + gentle scroll dolly/tilt
+        pointer.x += (pointer.tx - pointer.x) * 0.05;
+        pointer.y += (pointer.ty - pointer.y) * 0.05;
+        camera.position.x = pointer.x * 1.4;
+        camera.position.y = 0.6 + pointer.y * -0.6 + scrollLerp * 2.4;
+        camera.position.z = 9 - scrollLerp * 2.2;
+        camera.lookAt(0, -0.5 - scrollLerp * 2.2, -4);
+
+        if (composer) composer.render();
+        else renderer.render(scene, camera);
+      }
+
+      let raf = null;
+      function loop() {
+        scrollLerp += (scrollTotal - scrollLerp) * 0.06;
+        heroLerp  += (heroLocal  - heroLerp)  * 0.08;
+        renderFrame(clock.getElapsedTime());
+        raf = requestAnimationFrame(loop);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = null; }
+        else if (!raf && !prefersReduced) loop();
+      });
+
+      setupBloom().finally(() => {
+        if (prefersReduced) {
+          // static, accessible: render a single frame, no continuous motion
+          renderFrame(0);
+        } else {
+          loop();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

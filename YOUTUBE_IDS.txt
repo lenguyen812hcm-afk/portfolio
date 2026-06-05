@@ -1,0 +1,43 @@
+====================================================
+  BẢNG ĐIỀN YOUTUBE ID — portfolio_Lehuunguyen
+====================================================
+
+Hướng dẫn upload lên YouTube:
+1. Vào studio.youtube.com → Upload video
+2. Chọn "Visibility" = UNLISTED (chỉ ai có link mới xem được)
+3. Copy phần ID từ link: youtube.com/watch?v=XXXXX  →  XXXXX là ID
+4. Điền ID vào cột bên phải và gửi lại cho tôi
+
+----------------------------------------------------
+STT | TÊN FILE VIDEO                              | YOUTUBE ID
+----------------------------------------------------
+ 1  | Tương Tác Cát.mp4                           |
+ 2  | Tương Tác Cát Nghê Thuật.mp4                |
+ 3  | tương tác cát tranh.mp4                     |
+ 4  | Tương Tác Chạm Logo.mp4                     |
+ 5  | Tương Tác Chạm Logo (2).mp4                 |
+ 6  | Vẽ Màu Chữ Uống lượn.mp4                   |
+ 7  | Vẽ Màu Chữ Uống Lượn (2).mp4               |
+ 8  | demo_PPT_tracking.mov                       |
+ 9  | demo_tracking_PPT.mp4                       |
+10  | PTT_tracking theo người thuyết trình.mov    |
+11  | demo bao lì xì.mp4                          |
+12  | Touch Lucky Money Version1+.mp4             |
+13  | Dùng Đèn Pin Khám Phá Bản Đồ Việt Nam.mp4  |
+14  | Litting Follow.mp4                          |
+15  | Tương Tác Chạm.mp4                          |
+16  | Tô Màu.mp4                                  |
+17  | Vẽ Màu Kèm Thông Điệp.mp4                  |
+18  | Tương Tác Sản Phẩm.mp4                      |
+19  | Tương Tác Các Box có Logo.mp4               |
+20  | Lidar Interactive.mp4                       |
+21  | Character.mp4                               |
+22  | Smoke.mp4                                   |
+23  | Luxury sports car.mp4                       |
+24  | demo_interactive.mp4                        |
+25  | scale+next.mp4                              |
+26  | UI.mp4                                      |
+----------------------------------------------------
+
+Sau khi điền xong, gửi file này (hoặc copy bảng) cho tôi.
+Tôi sẽ cập nhật code và tạo gói deploy cho Netlify.

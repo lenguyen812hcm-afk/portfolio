@@ -1,0 +1,29 @@
+# ---- Video (host ngoài: YouTube / Google Drive — không lưu trong repo) ----
+*.mp4
+*.mov
+*.webm
+*.avi
+*.mkv
+*.m4v
+
+# ---- Netlify CLI state ----
+.netlify/
+
+# ---- Backup / staging cục bộ ----
+_backup_original/
+_deploy/
+
+# ---- Dev tooling cục bộ ----
+.claude/
+
+# ---- File tạm ----
+live.html
+lc.css
+ls.js
+
+# ---- OS / editor ----
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log
+node_modules/
