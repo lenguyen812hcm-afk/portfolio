@@ -51,22 +51,23 @@
     const dot  = $('.cursor-dot');
     const ring = $('.cursor-ring');
     let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let rx = mx, ry = my, gx = mx, gy = my;
+    let gx = mx, gy = my;
 
     window.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
-      if (dot) { dot.style.left = mx + 'px'; dot.style.top = my + 'px'; dot.style.opacity = 1; }
+      // dot + ring track the cursor instantly — set right in the event so they
+      // never lag behind, regardless of the 3D scene's framerate
+      if (dot)  { dot.style.left  = mx + 'px'; dot.style.top  = my + 'px'; dot.style.opacity  = 1; }
+      if (ring) { ring.style.left = mx + 'px'; ring.style.top = my + 'px'; ring.style.opacity = 1; }
       if (glow) glow.style.opacity = 1;
-      if (ring) ring.style.opacity = 1;
     });
     window.addEventListener('mouseleave', () => {
       [glow, dot, ring].forEach(el => el && (el.style.opacity = 0));
     });
 
+    // only the big soft glow keeps a gentle trailing lerp (it's meant to lag)
     (function follow() {
-      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
-      gx += (mx - gx) * 0.08; gy += (my - gy) * 0.08;
-      if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; }
+      gx += (mx - gx) * 0.12; gy += (my - gy) * 0.12;
       if (glow) { glow.style.left = gx + 'px'; glow.style.top = gy + 'px'; }
       requestAnimationFrame(follow);
     })();
