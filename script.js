@@ -71,9 +71,14 @@
       requestAnimationFrame(follow);
     })();
 
-    $$('a, button, .project-card, .tab-btn, .filter-btn, .contact-card').forEach(el => {
+    $$('a, button, .project-card, .tab-btn, .filter-btn, .contact-card, .service-card').forEach(el => {
       el.addEventListener('mouseenter', () => ring && ring.classList.add('hovering'));
       el.addEventListener('mouseleave', () => ring && ring.classList.remove('hovering'));
+    });
+    // "view" cursor over video thumbnails
+    $$('.card-media').forEach(m => {
+      m.addEventListener('mouseenter', () => ring && ring.classList.add('view'));
+      m.addEventListener('mouseleave', () => ring && ring.classList.remove('view'));
     });
   }
 
@@ -82,8 +87,9 @@
   if (rotator) {
     const roles = [
       'TouchDesigner Developer',
-      'Interactive Media Artist',
-      'Embedded / IoT Engineer',
+      'Visual System Engineer',
+      'Projection Mapping Artist',
+      'Realtime / Interactive Media',
       'Creative Technologist',
     ];
     if (reduceMotion) {
@@ -131,7 +137,9 @@
       glare.className = 'card-glare';
       card.appendChild(glare);
       let raf = null;
+      const art = card.querySelector('.thumb-art');
 
+      card.addEventListener('mouseenter', () => { if (art) art.style.transition = 'transform .15s ease-out'; });
       card.addEventListener('mousemove', e => {
         const r = card.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width;
@@ -143,11 +151,13 @@
           card.style.transform = `perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(8px)`;
           glare.style.setProperty('--mx', (px * 100) + '%');
           glare.style.setProperty('--my', (py * 100) + '%');
+          if (art) art.style.transform = `scale(1.09) translate(${(px - 0.5) * -12}px, ${(py - 0.5) * -12}px)`;
         });
       });
       card.addEventListener('mouseleave', () => {
         if (raf) cancelAnimationFrame(raf);
         card.style.transform = '';
+        if (art) { art.style.transition = ''; art.style.transform = ''; }
       });
     });
   }
@@ -180,6 +190,28 @@
     if (!media) return;
     const themeCls = Array.from(media.classList).find(c => c.startsWith('theme-'));
     card.dataset.cat = catMap[themeCls] || 'other';
+  });
+
+  /* ---------- AI / HUD overlay injected on every thumbnail ---------- */
+  const catLabel = {
+    installation: 'INSTALLATION', brand: 'BRAND', art: 'GENERATIVE', tracking: 'TRACKING',
+    ai: 'AI · VISION', '3d': '3D · RENDER', ui: 'UI · HUD', mapping: 'MAPPING', other: 'REALTIME',
+  };
+  $$('.project-card').forEach((card, i) => {
+    const media = card.querySelector('.card-media');
+    if (!media || media.querySelector('.card-hud')) return;
+    const cat = card.dataset.cat || 'other';
+    const hud = document.createElement('div');
+    hud.className = 'card-hud';
+    hud.innerHTML =
+      '<i class="hud-c tl"></i><i class="hud-c tr"></i><i class="hud-c bl"></i><i class="hud-c br"></i>' +
+      '<span class="hud-tag"><b></b>' + (catLabel[cat] || 'REALTIME') + '</span>' +
+      '<span class="hud-code">ID_' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<span class="hud-foot">REALTIME · 60FPS</span>' +
+      '<i class="hud-scan"></i><i class="hud-sheen"></i>';
+    const art = media.querySelector('.thumb-art');
+    if (art && art.nextSibling) media.insertBefore(hud, art.nextSibling);
+    else media.insertBefore(hud, media.firstChild);
   });
 
   const filterBtns = $$('.filter-btn');
@@ -279,10 +311,18 @@
   /* ============================================================
      SCROLL REVEAL  (GSAP ScrollTrigger if present, else IO)
      ============================================================ */
-  const revealEls = $$('[data-reveal], .project-card, .stat, .contact-card, .section-head, .about-text, .about-side, .tl-item');
+  const revealEls = $$('[data-reveal], .project-card, .service-card, .stat, .contact-card, .section-head, .about-text, .about-side, .tl-item');
 
   if (window.gsap && window.ScrollTrigger && !reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
+
+    // hero entrance timeline
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.9 } });
+    heroTl.from('.hero-badge', { y: 22, opacity: 0 })
+          .from('.hero-name .line', { y: 46, opacity: 0, stagger: 0.12 }, '-=0.5')
+          .from('.hero-role', { y: 20, opacity: 0 }, '-=0.4')
+          .from('.hero-desc', { y: 20, opacity: 0 }, '-=0.55')
+          .from('.hero-actions .btn', { y: 20, opacity: 0, stagger: 0.1 }, '-=0.5');
 
     revealEls.forEach(el => {
       gsap.from(el, {
