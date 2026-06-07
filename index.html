@@ -1211,21 +1211,87 @@
       terrain.position.y = -6.5;
       scene.add(terrain);
 
-      /* ---------- HERO ICOSAHEDRON ---------- */
+      /* ---------- HERO "WOVEN LIGHT" PARTICLE KNOT ---------- */
+      // soft round sprite so every particle reads as a thread of light
+      function makeDotTexture() {
+        const s = 64;
+        const cv = document.createElement('canvas'); cv.width = cv.height = s;
+        const c = cv.getContext('2d');
+        const g = c.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+        g.addColorStop(0,    'rgba(255,255,255,1)');
+        g.addColorStop(0.35, 'rgba(255,255,255,0.5)');
+        g.addColorStop(1,    'rgba(255,255,255,0)');
+        c.fillStyle = g; c.fillRect(0, 0, s, s);
+        return new THREE.CanvasTexture(cv);
+      }
+      const dotTex = makeDotTexture();
+
       const heroGroup = new THREE.Group();
-      const icoGeo = new THREE.IcosahedronGeometry(1.6, 1);
-      const icoOuter = new THREE.Mesh(icoGeo, new THREE.MeshBasicMaterial({
-        color: COL_CYAN.clone(), wireframe: true, transparent: true, opacity: 0.6,
-      }));
-      const icoInner = new THREE.Mesh(new THREE.IcosahedronGeometry(1.12, 0), new THREE.MeshBasicMaterial({
-        color: COL_VIOLET.clone(), wireframe: true, transparent: true, opacity: 0.32,
-      }));
-      const icoDots = new THREE.Points(icoGeo, new THREE.PointsMaterial({
-        color: 0xffffff, size: 0.07, transparent: true, opacity: 0.9,
-        depthWrite: false, blending: THREE.AdditiveBlending,
-      }));
-      heroGroup.add(icoOuter, icoInner, icoDots);
+
+      // particles are sampled from the surface of a torus-knot — the "weave"
+      const KNOT_R = 1.15, KNOT_T = 0.42;
+      const knotSrc  = new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, lowPower ? 150 : 240, lowPower ? 16 : 26);
+      const knotAttr = knotSrc.attributes.position;
+      const WOVEN_COUNT = knotAttr.count;
+
+      const wovenOrig = new Float32Array(WOVEN_COUNT * 3); // rest positions (local space)
+      const wovenPos  = new Float32Array(WOVEN_COUNT * 3); // live positions
+      const wovenVel  = new Float32Array(WOVEN_COUNT * 3); // velocities
+      const wovenCol  = new Float32Array(WOVEN_COUNT * 3); // live colour (uploaded)
+      const wovenBase = new Float32Array(WOVEN_COUNT * 3); // resting colour (cyan)
+      const wovenHeat = new Float32Array(WOVEN_COUNT);     // 0..1 cursor excitation
+
+      const _cCyanRest = new THREE.Color(0x00e5ff);
+      const _cWhiteish = new THREE.Color(0xd6ffff);
+      const _cMix      = new THREE.Color();
+      for (let i = 0; i < WOVEN_COUNT; i++) {
+        const ix = i*3, iy = ix+1, iz = ix+2;
+        const x = knotAttr.array[ix], y = knotAttr.array[iy], z = knotAttr.array[iz];
+        wovenOrig[ix] = x; wovenOrig[iy] = y; wovenOrig[iz] = z;
+        wovenPos[ix]  = x; wovenPos[iy]  = y; wovenPos[iz]  = z;
+        // resting colour = cyan with a little white sparkle. Held in vertex
+        // colours (material.color stays white) so cursor-excited particles can
+        // flare to violet without the scroll tint muddying the mix.
+        _cMix.copy(_cCyanRest).lerp(_cWhiteish, Math.random() * 0.5);
+        const b = 0.7 + Math.random() * 0.3;
+        wovenBase[ix] = _cMix.r * b; wovenBase[iy] = _cMix.g * b; wovenBase[iz] = _cMix.b * b;
+        wovenCol[ix]  = wovenBase[ix]; wovenCol[iy] = wovenBase[iy]; wovenCol[iz] = wovenBase[iz];
+      }
+      knotSrc.dispose();
+
+      const wovenGeo = new THREE.BufferGeometry();
+      wovenGeo.setAttribute('position', new THREE.BufferAttribute(wovenPos, 3));
+      wovenGeo.setAttribute('color', new THREE.BufferAttribute(wovenCol, 3));
+      const wovenMat = new THREE.PointsMaterial({
+        map: dotTex, size: lowPower ? 0.075 : 0.058, vertexColors: true,
+        transparent: true, opacity: 0.9, depthWrite: false,
+        blending: THREE.AdditiveBlending, sizeAttenuation: true,
+      });
+      const woven = new THREE.Points(wovenGeo, wovenMat);
+      heroGroup.add(woven);
+
+      // faint inner wireframe gives the silk a sense of woven structure
+      const wovenWire = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, lowPower ? 64 : 96, 8),
+        new THREE.MeshBasicMaterial({ color: COL_VIOLET.clone(), wireframe: true, transparent: true, opacity: 0.10 })
+      );
+      heroGroup.add(wovenWire);
       scene.add(heroGroup);
+
+      // ---- mouse-interaction working state (reused — no per-frame allocations) ----
+      const wovenPlane = new THREE.Plane();
+      const wovenRay   = new THREE.Raycaster();
+      const wovenNDC   = new THREE.Vector2();
+      const mouseWorld = new THREE.Vector3();
+      const mouseLocal = new THREE.Vector3();
+      const camNormal  = new THREE.Vector3();
+      const invMat     = new THREE.Matrix4();
+      const WOVEN_R = 1.15, WOVEN_R2 = WOVEN_R * WOVEN_R;
+      // excited particles flare to this — super-bright violet so the existing
+      // UnrealBloom pass gives them the soft blur/glow
+      const _vg = new THREE.Color(0xb066ff);
+      const VG_R = _vg.r * 1.9, VG_G = _vg.g * 1.9, VG_B = _vg.b * 1.9;
+      let wovenColorActive = false; // true while any particle still glowing
 
       /* ---------- LAYOUT (responsive placement of hero object) ---------- */
       let heroBaseX = 3.2, heroBaseScale = 1;
@@ -1295,12 +1361,84 @@
       const terrPos = terrGeo.attributes.position;
       let frameTick = 0;
 
+      /* ---------- WOVEN SILK: mouse repel + spring-back physics ---------- */
+      function updateWoven(vis) {
+        // weak/touch devices and reduced-motion keep a rigid glowing knot;
+        // also skip the loop entirely once the hero has scrolled out of view
+        if (lowPower || prefersReduced || vis < 0.04) return;
+
+        camera.updateMatrixWorld();
+        heroGroup.updateMatrixWorld();
+        camera.getWorldDirection(camNormal);
+        wovenPlane.setFromNormalAndCoplanarPoint(camNormal, heroGroup.position);
+        wovenNDC.set(pointer.x, -pointer.y);
+        wovenRay.setFromCamera(wovenNDC, camera);
+
+        let hasMouse = false;
+        if (wovenRay.ray.intersectPlane(wovenPlane, mouseWorld)) {
+          invMat.copy(heroGroup.matrixWorld).invert();
+          mouseLocal.copy(mouseWorld).applyMatrix4(invMat);
+          hasMouse = true;
+        }
+        const mlx = mouseLocal.x, mly = mouseLocal.y, mlz = mouseLocal.z;
+
+        const pos = wovenPos, orig = wovenOrig, vel = wovenVel;
+        const col = wovenCol, base = wovenBase, heat = wovenHeat;
+        let anyHeat = false;
+        for (let i = 0; i < WOVEN_COUNT; i++) {
+          const ix = i*3, iy = ix+1, iz = ix+2;
+          const px = pos[ix], py = pos[iy], pz = pos[iz];
+          let vx = vel[ix], vy = vel[iy], vz = vel[iz];
+          let h = heat[i];
+
+          if (hasMouse) {
+            const dx = px - mlx, dy = py - mly, dz = pz - mlz;
+            const d2 = dx*dx + dy*dy + dz*dz;
+            if (d2 < WOVEN_R2) {
+              const d = Math.sqrt(d2);
+              const prox = 1 - d / WOVEN_R;       // 0..1, strongest at the cursor
+              const ex = prox * 1.5;              // boost so a wider halo flares
+              if (ex > h) h = ex > 1 ? 1 : ex;    // excite -> flares violet
+              if (d2 > 1e-5) {
+                const f = (WOVEN_R - d) * 0.11 / d; // push outward, stronger up close
+                vx += dx * f; vy += dy * f; vz += dz * f;
+              }
+            }
+          }
+          // spring toward rest position
+          vx += (orig[ix] - px) * 0.020;
+          vy += (orig[iy] - py) * 0.020;
+          vz += (orig[iz] - pz) * 0.020;
+          // damping
+          vx *= 0.90; vy *= 0.90; vz *= 0.90;
+
+          pos[ix] = px + vx; pos[iy] = py + vy; pos[iz] = pz + vz;
+          vel[ix] = vx; vel[iy] = vy; vel[iz] = vz;
+
+          // colour: blend resting cyan -> bright violet by heat, then let it decay
+          h *= 0.95;
+          heat[i] = h;
+          if (h > 0.002) {
+            anyHeat = true;
+            const inv = 1 - h;
+            col[ix] = base[ix] * inv + VG_R * h;
+            col[iy] = base[iy] * inv + VG_G * h;
+            col[iz] = base[iz] * inv + VG_B * h;
+          } else if (wovenColorActive) {
+            col[ix] = base[ix]; col[iy] = base[iy]; col[iz] = base[iz]; // settle back
+          }
+        }
+        wovenGeo.attributes.position.needsUpdate = true;
+        if (anyHeat || wovenColorActive) wovenGeo.attributes.color.needsUpdate = true;
+        wovenColorActive = anyHeat;
+      }
+
       function renderFrame(t) {
         // colour journey: cyan -> violet -> magenta
         if (scrollLerp < 0.5) tmpCol.copy(COL_CYAN).lerp(COL_VIOLET, scrollLerp * 2);
         else tmpCol.copy(COL_VIOLET).lerp(COL_MAGENTA, (scrollLerp - 0.5) * 2);
         terrMat.color.copy(tmpCol);
-        icoOuter.material.color.copy(tmpCol);
+        wovenWire.material.color.copy(tmpCol);
 
         // terrain waves (update every 2nd frame for performance)
         if ((frameTick++ & 1) === 0) {
@@ -1323,17 +1461,16 @@
         starGeo.attributes.position.needsUpdate = true;
         stars.rotation.z += 0.0004;
 
-        // hero object: rotate, breathe, fade out on scroll
+        // hero woven knot: rotate, breathe, fade out on scroll
         const vis = 1 - heroLerp;
         const breathe = 1 + Math.sin(t * 1.5) * 0.05;
         heroGroup.position.set(heroBaseX, 0.3 + heroLerp * 4, 0);
         heroGroup.scale.setScalar(heroBaseScale * breathe * Math.max(vis, 0.0001));
-        heroGroup.rotation.y += 0.003;
-        heroGroup.rotation.x = pointer.y * 0.3;
-        heroGroup.rotation.z = pointer.x * 0.15;
-        icoOuter.material.opacity = 0.6 * vis;
-        icoInner.material.opacity = 0.32 * vis;
-        icoDots.material.opacity = 0.9 * vis;
+        heroGroup.rotation.y += 0.0026;
+        heroGroup.rotation.x = pointer.y * 0.25;
+        heroGroup.rotation.z = pointer.x * 0.12;
+        wovenMat.opacity = 0.9 * vis;
+        wovenWire.material.opacity = 0.10 * vis;
 
         // camera: parallax + gentle scroll dolly/tilt
         pointer.x += (pointer.tx - pointer.x) * 0.05;
@@ -1342,6 +1479,9 @@
         camera.position.y = 0.6 + pointer.y * -0.6 + scrollLerp * 2.4;
         camera.position.z = 9 - scrollLerp * 2.2;
         camera.lookAt(0, -0.5 - scrollLerp * 2.2, -4);
+
+        // woven silk interaction (uses the freshly-smoothed pointer above)
+        updateWoven(vis);
 
         if (composer) composer.render();
         else renderer.render(scene, camera);

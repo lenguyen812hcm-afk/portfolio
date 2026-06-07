@@ -13,6 +13,9 @@
 _backup_original/
 _deploy/
 
+# ---- Tài liệu riêng tư — KHÔNG publish (chứa tên công ty / mô tả công việc) ----
+hinhanh/
+
 # ---- Dev tooling cục bộ ----
 .claude/
 
