@@ -766,6 +766,9 @@ section { position: relative; z-index: 2; scroll-margin-top: 80px; }
 .theme-ui      { background: linear-gradient(145deg, #001414 0%, #002a2a 50%, #004444 100%); }
 .theme-fish    { background: linear-gradient(145deg, #000a18 0%, #001835 50%, #002e58 100%); }
 .theme-resolume{ background: linear-gradient(145deg, #16002e 0%, #4a0070 45%, #c01060 100%); }
+.theme-leapcube     { background: linear-gradient(145deg, #020a1c 0%, #06245c 50%, #1d8fe0 100%); }
+.theme-leapcosmetic { background: linear-gradient(145deg, #0a0805 0%, #2a2010 45%, #8a6a20 80%, #1a1408 100%); }
+.theme-yolobook     { background: linear-gradient(145deg, #1a1206 0%, #4a3010 45%, #0f6b35 100%); }
 
 /* ===== CARD BODY ===== */
 .card-body { padding: 1.3rem 1.6rem 1.7rem; position: relative; z-index: 4; }
