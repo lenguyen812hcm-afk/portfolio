@@ -242,6 +242,24 @@
     });
   });
 
+  const projectOrder = [
+    'Touchdesigner - Interactive Touch Multi Point',
+    'Touchdesigner - Interactive Floor',
+    'Cosmetic Experience — TouchDesigner & Leap Motion',
+    'Leap Motion Cube — Đôi Tay Là Controller',
+  ];
+  const projectsGrid = $('.projects-grid');
+  if (projectsGrid) {
+    const cards = $$('.project-card', projectsGrid);
+    cards.sort((a, b) => {
+      const title = card => $('h3', card)?.textContent.trim();
+      const aIndex = projectOrder.indexOf(title(a));
+      const bIndex = projectOrder.indexOf(title(b));
+      return (aIndex < 0 ? projectOrder.length : aIndex) - (bIndex < 0 ? projectOrder.length : bIndex);
+    });
+    cards.forEach(card => projectsGrid.appendChild(card));
+  }
+
   /* ============================================================
      VIDEO PLAYER LOGIC  (preserved from original)
      ============================================================ */
