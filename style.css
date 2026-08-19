@@ -434,10 +434,12 @@ section { position: relative; z-index: 2; scroll-margin-top: 80px; }
   border-radius: 8px;
   cursor: pointer;
   border: none;
-  transition: transform .25s var(--ease), box-shadow .3s, background .3s, color .3s;
+  transition: box-shadow .3s, background .3s, color .3s;
   will-change: transform;
 }
-.btn svg { width: 18px; height: 18px; }
+.btn svg { width: 18px; height: 18px; transition: transform .35s var(--ease); }
+.btn-primary:hover svg { transform: translateX(3px); }
+.btn-outline:hover svg { transform: translateY(2px); }
 .btn-primary {
   background: linear-gradient(120deg, var(--cyan), #29b6ff);
   color: #03121a;

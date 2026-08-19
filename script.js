@@ -166,13 +166,35 @@
   /* ---------- MAGNETIC BUTTONS ---------- */
   if (!isTouch && !reduceMotion) {
     $$('[data-magnetic]').forEach(el => {
+      let targetX = 0, targetY = 0;
+      let currentX = 0, currentY = 0;
+      let raf = null;
+
+      const animate = () => {
+        currentX += (targetX - currentX) * 0.16;
+        currentY += (targetY - currentY) * 0.16;
+        el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+        if (Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
+          raf = requestAnimationFrame(animate);
+        } else {
+          currentX = targetX;
+          currentY = targetY;
+          el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+          raf = null;
+        }
+      };
+
       el.addEventListener('mousemove', e => {
         const r = el.getBoundingClientRect();
-        const x = e.clientX - r.left - r.width / 2;
-        const y = e.clientY - r.top - r.height / 2;
-        el.style.transform = `translate(${x * 0.28}px, ${y * 0.4}px)`;
+        targetX = (e.clientX - r.left - r.width / 2) * 0.22;
+        targetY = (e.clientY - r.top - r.height / 2) * 0.28;
+        if (!raf) raf = requestAnimationFrame(animate);
       });
-      el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+      el.addEventListener('mouseleave', () => {
+        targetX = 0;
+        targetY = 0;
+        if (!raf) raf = requestAnimationFrame(animate);
+      });
     });
   }
 
