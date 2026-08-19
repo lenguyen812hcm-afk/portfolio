@@ -111,10 +111,19 @@
   /* ---------- ANIMATED COUNTERS ---------- */
   const counters = $$('[data-target]');
   if (counters.length && 'IntersectionObserver' in window) {
+    const counterFrames = new Map();
     const cObs = new IntersectionObserver(entries => {
       entries.forEach(e => {
-        if (!e.isIntersecting) return;
         const el = e.target;
+        const previousFrame = counterFrames.get(el);
+        if (previousFrame) cancelAnimationFrame(previousFrame);
+
+        if (!e.isIntersecting) {
+          el.childNodes[0].nodeValue = '0';
+          counterFrames.delete(el);
+          return;
+        }
+
         const target = parseFloat(el.dataset.target);
         const dur = 1500;
         const start = performance.now();
@@ -122,10 +131,13 @@
           const t = Math.min((now - start) / dur, 1);
           const eased = 1 - Math.pow(1 - t, 3);
           el.childNodes[0].nodeValue = Math.round(target * eased).toString();
-          if (t < 1) requestAnimationFrame(tick);
+          if (t < 1) {
+            counterFrames.set(el, requestAnimationFrame(tick));
+          } else {
+            counterFrames.delete(el);
+          }
         }
-        requestAnimationFrame(tick);
-        cObs.unobserve(el);
+        counterFrames.set(el, requestAnimationFrame(tick));
       });
     }, { threshold: 0.5 });
     counters.forEach(c => cObs.observe(c));
