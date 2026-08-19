@@ -215,28 +215,6 @@
     card.dataset.cat = catMap[themeCls] || 'other';
   });
 
-  /* ---------- AI / HUD overlay injected on every thumbnail ---------- */
-  const catLabel = {
-    installation: 'INSTALLATION', brand: 'BRAND', art: 'GENERATIVE', tracking: 'TRACKING',
-    ai: 'AI · VISION', '3d': '3D · RENDER', ui: 'UI · HUD', mapping: 'MAPPING', other: 'REALTIME',
-  };
-  $$('.project-card').forEach((card, i) => {
-    const media = card.querySelector('.card-media');
-    if (!media || media.querySelector('.card-hud')) return;
-    const cat = card.dataset.cat || 'other';
-    const hud = document.createElement('div');
-    hud.className = 'card-hud';
-    hud.innerHTML =
-      '<i class="hud-c tl"></i><i class="hud-c tr"></i><i class="hud-c bl"></i><i class="hud-c br"></i>' +
-      '<span class="hud-tag"><b></b>' + (catLabel[cat] || 'REALTIME') + '</span>' +
-      '<span class="hud-code">ID_' + String(i + 1).padStart(2, '0') + '</span>' +
-      '<span class="hud-foot">REALTIME · 60FPS</span>' +
-      '<i class="hud-scan"></i><i class="hud-sheen"></i>';
-    const art = media.querySelector('.thumb-art');
-    if (art && art.nextSibling) media.insertBefore(hud, art.nextSibling);
-    else media.insertBefore(hud, media.firstChild);
-  });
-
   const filterBtns = $$('.filter-btn');
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -269,6 +247,8 @@
     'Touchdesigner - Interactive Floor',
     'Cosmetic Experience — TouchDesigner & Leap Motion',
     'Leap Motion Cube — Đôi Tay Là Controller',
+    'Touchdesigner - Interactive Musical Text',
+    'Touchdesigner - Interactive WaterFall',
   ];
   const projectsGrid = $('.projects-grid');
   if (projectsGrid) {
@@ -281,6 +261,28 @@
     });
     cards.forEach(card => projectsGrid.appendChild(card));
   }
+
+  /* ---------- AI / HUD overlay injected on every thumbnail ---------- */
+  const catLabel = {
+    installation: 'INSTALLATION', brand: 'BRAND', art: 'GENERATIVE', tracking: 'TRACKING',
+    ai: 'AI · VISION', '3d': '3D · RENDER', ui: 'UI · HUD', mapping: 'MAPPING', other: 'REALTIME',
+  };
+  $$('.project-card').forEach((card, i) => {
+    const media = card.querySelector('.card-media');
+    if (!media || media.querySelector('.card-hud')) return;
+    const cat = card.dataset.cat || 'other';
+    const hud = document.createElement('div');
+    hud.className = 'card-hud';
+    hud.innerHTML =
+      '<i class="hud-c tl"></i><i class="hud-c tr"></i><i class="hud-c bl"></i><i class="hud-c br"></i>' +
+      '<span class="hud-tag"><b></b>' + (catLabel[cat] || 'REALTIME') + '</span>' +
+      '<span class="hud-code">ID_' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<span class="hud-foot">REALTIME · 60FPS</span>' +
+      '<i class="hud-scan"></i><i class="hud-sheen"></i>';
+    const art = media.querySelector('.thumb-art');
+    if (art && art.nextSibling) media.insertBefore(hud, art.nextSibling);
+    else media.insertBefore(hud, media.firstChild);
+  });
 
   /* ============================================================
      VIDEO PLAYER LOGIC  (preserved from original)

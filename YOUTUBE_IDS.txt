@@ -37,6 +37,8 @@ STT | TÊN FILE VIDEO                              | YOUTUBE ID
 24  | demo_interactive.mp4                        |
 25  | scale+next.mp4                              |
 26  | UI.mp4                                      |
+27  | Touchdesigner - Interactive Musical Text    | biEHPcHxESc
+28  | Touchdesigner - Interactive WaterFall       | 85NOLTrZnns
 ----------------------------------------------------
 
 Sau khi điền xong, gửi file này (hoặc copy bảng) cho tôi.
