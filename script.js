@@ -255,16 +255,16 @@
   });
 
   const projectOrder = [
+    'Touchdesigner - Tương Tác Đèn Lighting Follow & Đèn Pin Tại Sự Kiện',
+    'Touchdesigner - Tương Tác Lật Sách Tại Sự Kiện',
+    'Touchdesigner - Tương Tác Cát Tại Sự Kiện',
+    'Touchdesigner - Tương Tác Chạm Đa Điểm Tại Sự Kiện',
     'Touchdesigner - Interactive Touch Multi Point',
     'Touchdesigner - Interactive Floor',
     'Cosmetic Experience — TouchDesigner & Leap Motion',
     'Leap Motion Cube — Đôi Tay Là Controller',
     'Touchdesigner - Interactive Musical Text',
     'Touchdesigner - Interactive WaterFall',
-    'Touchdesigner - Tương Tác Đèn Lighting Follow & Đèn Pin Tại Sự Kiện',
-    'Touchdesigner - Tương Tác Lật Sách Tại Sự Kiện',
-    'Touchdesigner - Tương Tác Cát Tại Sự Kiện',
-    'Touchdesigner - Tương Tác Chạm Đa Điểm Tại Sự Kiện',
   ];
   const projectsGrid = $('.projects-grid');
   if (projectsGrid) {
