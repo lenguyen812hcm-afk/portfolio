@@ -771,6 +771,9 @@ section { position: relative; z-index: 2; scroll-margin-top: 80px; }
 .theme-leapcube     { background: linear-gradient(145deg, #020a1c 0%, #06245c 50%, #1d8fe0 100%); }
 .theme-leapcosmetic { background: linear-gradient(145deg, #0a0805 0%, #2a2010 45%, #8a6a20 80%, #1a1408 100%); }
 .theme-yolobook     { background: linear-gradient(145deg, #1a1206 0%, #4a3010 45%, #0f6b35 100%); }
+.theme-watch        { background: linear-gradient(145deg, #0a0805 0%, #2a1e0c 45%, #7a5a22 80%, #14100a 100%); }
+.theme-bloom        { background: linear-gradient(145deg, #12040e 0%, #4a0f3a 45%, #a8336e 80%, #2a0820 100%); }
+.theme-bubble       { background: linear-gradient(145deg, #010a14 0%, #06304a 50%, #0e7490 100%); }
 
 /* ===== CARD BODY ===== */
 .card-body { padding: 1.3rem 1.6rem 1.7rem; position: relative; z-index: 4; }

@@ -219,6 +219,7 @@
     'theme-character': 'tracking', 'theme-fish': 'ai',
     'theme-car': '3d', 'theme-demo': '3d', 'theme-scale': 'ui', 'theme-ui': 'ui',
     'theme-resolume': 'mapping',
+    'theme-watch': '3d', 'theme-bloom': 'art', 'theme-bubble': 'ai',
   };
   $$('.project-card').forEach(card => {
     const media = card.querySelector('.card-media');
@@ -255,6 +256,11 @@
   });
 
   const projectOrder = [
+    'Touchdesigner - Tương Tác Xem Đồng Hồ 3D',
+    'Touchdesigner Interactive - Tương Tác Dùng Đèn Pin Vẽ Đường Hoa',
+    'Touchdesigner Interactive - Tương Tác Dùng Tay Vẽ Hoa Nở',
+    'Touchdesigner Interactive - Tương Tác Chạm Bong Bóng Kèm Key Moment',
+    'Touchdesigner Interactive - Tương Tác Bong Bóng Dùng YOLO',
     'Touchdesigner - Tương Tác Đèn Lighting Follow & Đèn Pin Tại Sự Kiện',
     'Touchdesigner - Tương Tác Lật Sách Tại Sự Kiện',
     'Touchdesigner - Tương Tác Cát Tại Sự Kiện',

@@ -91,11 +91,11 @@
     <div class="container" style="padding-top:2rem;padding-bottom:1rem;">
       <div class="stats">
         <div class="stat">
-          <div class="stat-num" data-target="30">0<span class="suffix">+</span></div>
+          <div class="stat-num" data-target="35">0<span class="suffix">+</span></div>
           <div class="stat-label">Dự án tương tác</div>
         </div>
         <div class="stat">
-          <div class="stat-num" data-target="38">0</div>
+          <div class="stat-num" data-target="43">0</div>
           <div class="stat-label">Video demo</div>
         </div>
         <div class="stat">
@@ -268,6 +268,141 @@
       </div>
 
       <div class="projects-grid">
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Tương tác xem đồng hồ 3D
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-watch">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-watch3d"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="90" ry="62" fill="#e2b45c" opacity="0.16" filter="url(#blur-watch3d)"/>
+              <g stroke="white" stroke-width="1.3" fill="none" opacity="0.35">
+                <rect x="140" y="20" width="40" height="26" rx="6"/><rect x="140" y="134" width="40" height="26" rx="6"/>
+                <circle cx="160" cy="90" r="46"/><circle cx="160" cy="90" r="38"/>
+              </g>
+              <g stroke="#fde7b0" stroke-width="1.6" stroke-linecap="round" opacity="0.6"><line x1="160" y1="90" x2="160" y2="62"/><line x1="160" y1="90" x2="180" y2="100"/></g>
+              <g fill="#fde7b0" opacity="0.5"><circle cx="160" cy="56" r="2"/><circle cx="194" cy="90" r="2"/><circle cx="160" cy="124" r="2"/><circle cx="126" cy="90" r="2"/></g>
+              <path d="M70 150 Q160 176 250 150" stroke="#e2b45c" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none"/>
+            </svg>
+            <div class="thumb-overlay"><button class="play-btn" aria-label="Phát video"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>
+            <video src="" data-yt="Bu1wdQbqKIc" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">3D Showroom · Lidar Touch</span></div>
+            <h3>Touchdesigner - Tương Tác Xem Đồng Hồ 3D</h3>
+            <p>Phòng trưng bày đồng hồ luxury 3D: chạm chọn từng mẫu, xoay bằng một tay và chụm hai ngón để phóng to xem chi tiết. Vật liệu PBR, sàn phản chiếu, popup thông tin sản phẩm kèm âm thanh — render real-time trong TouchDesigner.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Dùng đèn pin vẽ đường hoa
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-flash">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-flashflower"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="200" cy="96" rx="80" ry="50" fill="#fbbf24" opacity="0.16" filter="url(#blur-flashflower)"/>
+              <path d="M30 150 C80 120 110 160 150 120 S220 70 270 96" stroke="#fde68a" stroke-width="1.6" fill="none" opacity="0.45"/>
+              <g fill="#f9a8d4" opacity="0.5">
+                <circle cx="96" cy="136" r="5"/><circle cx="150" cy="120" r="6"/><circle cx="206" cy="90" r="7"/><circle cx="262" cy="96" r="5"/>
+              </g>
+              <g stroke="white" stroke-width="1.2" fill="none" opacity="0.32">
+                <circle cx="206" cy="90" r="14"/><circle cx="150" cy="120" r="11"/>
+              </g>
+              <g fill="#fcd34d" opacity="0.14"><path d="M280 20 L298 32 L226 104 L208 86 Z"/></g>
+            </svg>
+            <div class="thumb-overlay"><button class="play-btn" aria-label="Phát video"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>
+            <video src="" data-yt="to1-juq7PKo" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Đèn Pin · Generative Flower</span></div>
+            <h3>Touchdesigner Interactive - Tương Tác Dùng Đèn Pin Vẽ Đường Hoa</h3>
+            <p>Rọi đèn pin lên màn hình để vẽ một con đường: dọc theo vệt sáng, những cụm hoa lần lượt nảy mầm và bung nở. Camera bắt điểm sáng, TouchDesigner sinh hoa và chuyển động real-time theo từng nét vẽ.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Dùng tay vẽ hoa nở
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-bloom">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-handbloom"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="92" rx="120" ry="60" fill="#f472b6" opacity="0.15" filter="url(#blur-handbloom)"/>
+              <path d="M40 140 C90 100 120 150 165 110 S240 80 282 118" stroke="#fcd34d" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round"/>
+              <g stroke="white" stroke-width="1.2" fill="none" opacity="0.35">
+                <path d="M165 110 C150 90 150 74 165 64 C180 74 180 90 165 110 Z"/>
+                <path d="M165 110 C145 104 132 92 136 78 C152 78 162 92 165 110 Z"/>
+                <path d="M165 110 C185 104 198 92 194 78 C178 78 168 92 165 110 Z"/>
+              </g>
+              <g fill="#fbcfe8" opacity="0.5"><circle cx="92" cy="122" r="4"/><circle cx="238" cy="96" r="5"/><circle cx="270" cy="114" r="3"/></g>
+              <g fill="#fde68a" opacity="0.6"><circle cx="70" cy="60" r="1.6"/><circle cx="250" cy="48" r="1.8"/><circle cx="120" cy="40" r="1.4"/></g>
+            </svg>
+            <div class="thumb-overlay"><button class="play-btn" aria-label="Phát video"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>
+            <video src="" data-yt="eA29zlf3wts" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Hand Tracking · Ink Brush</span></div>
+            <h3>Touchdesigner Interactive - Tương Tác Dùng Tay Vẽ Hoa Nở</h3>
+            <p>Đưa tay vẽ lên không trung, nét bút mực nhũ vàng chạy theo đầu ngón tay rồi mọc thành cành, nở thành hoa — kèm bướm và đom đóm bay quanh. Hỗ trợ nhiều người cùng vẽ, toàn bộ xử lý real-time.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Chạm bong bóng kèm key moment
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-touch">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-bubbletouch"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="90" rx="130" ry="68" fill="#67e8f9" opacity="0.13" filter="url(#blur-bubbletouch)"/>
+              <g fill="none" stroke="white" stroke-width="1.3" opacity="0.38">
+                <circle cx="96" cy="80" r="26"/><circle cx="170" cy="60" r="18"/><circle cx="226" cy="104" r="30"/><circle cx="138" cy="130" r="14"/>
+              </g>
+              <g fill="white" opacity="0.4"><circle cx="86" cy="70" r="4"/><circle cx="164" cy="54" r="3"/><circle cx="214" cy="92" r="4.5"/><circle cx="134" cy="126" r="2.5"/></g>
+              <g stroke="#a5f3fc" stroke-width="1.4" stroke-linecap="round" opacity="0.5">
+                <line x1="270" y1="40" x2="282" y2="30"/><line x1="276" y1="52" x2="292" y2="50"/><line x1="262" y1="32" x2="262" y2="18"/>
+              </g>
+              <rect x="40" y="152" width="240" height="6" rx="3" fill="white" opacity="0.15"/>
+              <rect x="40" y="152" width="150" height="6" rx="3" fill="#a5f3fc" opacity="0.45"/>
+            </svg>
+            <div class="thumb-overlay"><button class="play-btn" aria-label="Phát video"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>
+            <video src="" data-yt="nw0uYO3qxzM" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Touch · Game · Key Moment</span></div>
+            <h3>Touchdesigner Interactive - Tương Tác Chạm Bong Bóng Kèm Key Moment</h3>
+            <p>Bong bóng xà phòng 3D trôi trong không gian — chạm vào là vỡ tung thành bóng nhỏ. Thanh tiến trình đầy dần theo số bóng vỡ, đến 100% kích hoạt key moment chúc mừng. Nhận nhiều điểm chạm cùng lúc qua lidar.</p>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             STANDALONE: Bong bóng dùng YOLO
+        ══════════════════════════════════════ -->
+        <div class="project-card">
+          <div class="card-media theme-bubble">
+            <svg class="thumb-art" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+              <defs><filter id="blur-bubbleyolo"><feGaussianBlur stdDeviation="14"/></filter></defs>
+              <ellipse cx="160" cy="92" rx="125" ry="62" fill="#22d3ee" opacity="0.14" filter="url(#blur-bubbleyolo)"/>
+              <g fill="none" stroke="#67e8f9" stroke-width="1.3" opacity="0.55">
+                <path d="M118 38 h-12 v12"/><path d="M202 38 h12 v12"/><path d="M118 152 h-12 v-12"/><path d="M202 152 h12 v-12"/>
+              </g>
+              <g stroke="white" stroke-width="1.2" fill="none" opacity="0.35">
+                <circle cx="160" cy="70" r="12"/><path d="M160 82 L160 120 M160 92 L136 108 M160 92 L184 104 M160 120 L146 146 M160 120 L174 146"/>
+              </g>
+              <g fill="none" stroke="white" stroke-width="1.2" opacity="0.32"><circle cx="70" cy="70" r="18"/><circle cx="252" cy="86" r="22"/><circle cx="236" cy="146" r="12"/></g>
+              <text x="108" y="32" font-family="monospace" font-size="9" fill="#67e8f9" opacity="0.6">person 0.94</text>
+            </svg>
+            <div class="thumb-overlay"><button class="play-btn" aria-label="Phát video"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button></div>
+            <video src="" data-yt="CKh1CFURuzo" controls preload="none"></video>
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">AI · YOLO Detection</span></div>
+            <h3>Touchdesigner Interactive - Tương Tác Bong Bóng Dùng YOLO</h3>
+            <p>Không cần cảm biến chạm: mô hình YOLO nhận diện người và cơ thể qua camera, mỗi chuyển động tay chân được dùng để chạm vỡ bong bóng trên màn hình. Kết hợp AI vision với đồ hoạ 3D real-time trong TouchDesigner.</p>
+          </div>
+        </div>
 
         <!-- ══════════════════════════════════════
              STANDALONE: Leap Motion Cube
