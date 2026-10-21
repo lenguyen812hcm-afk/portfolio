@@ -11,6 +11,64 @@
   <meta property="og:type" content="website">
   <meta property="og:image" content="avt.png">
   <meta name="theme-color" content="#050509">
+
+  <!-- Adaptive quality: pick a starting tier from the device (GPU, RAM, CPU, screen).
+       The 3D scene then fine-tunes it from the measured FPS (see the scene module).
+       ?quality=high|medium|low forces a tier, ?debug shows an FPS readout. -->
+  <script>
+  (function () {
+    var LEVELS = ['high', 'high', 'medium', 'medium', 'low', 'low'];
+    var START = { high: 0, medium: 2, low: 4 };
+    var qs = new URLSearchParams(location.search);
+    var forced = (qs.get('quality') || '').toLowerCase();
+    if (!START.hasOwnProperty(forced)) forced = '';
+
+    // GPU name, via a throwaway WebGL context that is released right away
+    var gpu = '';
+    try {
+      var gl = document.createElement('canvas').getContext('webgl');
+      if (gl) {
+        var info = gl.getExtension('WEBGL_debug_renderer_info');
+        gpu = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) || '');
+        var lose = gl.getExtension('WEBGL_lose_context');
+        if (lose) lose.loseContext();
+      }
+    } catch (e) {}
+
+    var g = gpu.toLowerCase();
+    var mem = navigator.deviceMemory || 8;
+    var cores = navigator.hardwareConcurrency || 8;
+    var touch = matchMedia('(hover: none)').matches;
+    var saveData = !!(navigator.connection && navigator.connection.saveData);
+
+    var tier;
+    if (!gpu || /swiftshader|llvmpipe|softpipe|software|basic render/.test(g)) {
+      tier = 'low';                                   // no WebGL, or software rendering
+    } else if (/nvidia|geforce|rtx|gtx|quadro|radeon rx|radeon pro|\brx ?\d{3,4}|arc\(tm\) a\d|arc a\d|apple m\d/.test(g)) {
+      tier = 'high';                                  // discrete GPU / Apple M-series
+    } else {
+      tier = 'medium';                                // integrated (Intel UHD/Iris, AMD Radeon Graphics...) or unknown
+    }
+    if (touch || innerWidth < 720 || saveData || mem <= 2 || cores <= 2) tier = 'low';
+    else if (tier === 'high' && (mem <= 4 || cores <= 4)) tier = 'medium';
+
+    // Reuse the level the FPS governor settled on last visit (same GPU only)
+    var KEY = 'pf-quality';
+    var level = START[forced || tier];
+    if (!forced) {
+      try {
+        var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+        if (saved && saved.gpu === gpu && saved.level >= 0 && saved.level < LEVELS.length) level = saved.level;
+      } catch (e) {}
+    }
+
+    document.documentElement.setAttribute('data-quality', LEVELS[level]);
+    window.PF_QUALITY = {
+      levels: LEVELS, level: level, tier: LEVELS[level], detected: tier,
+      gpu: gpu, forced: !!forced, debug: qs.has('debug'), storageKey: KEY,
+    };
+  })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -1637,22 +1695,43 @@
   <script type="module">
     import * as THREE from 'three';
 
+    const Q = window.PF_QUALITY || {
+      levels: ['high', 'high', 'medium', 'medium', 'low', 'low'], level: 2, tier: 'medium',
+      gpu: '', forced: false, debug: false, storageKey: 'pf-quality',
+    };
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const lowPower = (navigator.hardwareConcurrency || 8) <= 4 || window.innerWidth < 720
-                     || window.matchMedia('(hover: none)').matches;
+    const isTouch = window.matchMedia('(hover: none)').matches;
     const canvas = document.getElementById('webgl');
+
+    /* ---------- QUALITY LADDER ----------
+       0-1 = high, 2-3 = medium, 4-5 = low (same order as Q.levels).
+       pr        max render pixel ratio (the canvas is stretched when < 1)
+       bloom     bloom buffer scale, 0 = bloom off
+       woven     share of knot particles drawn · stars: share of stars drawn
+       physics   cursor repel on the knot
+       idleHalf  render at ~30 fps once past the hero and not scrolling
+       cap       hard fps cap (last resort) */
+    const LADDER = [
+      { pr: 1.5,  bloom: 1,   woven: 1,    stars: 1,    physics: true,  idleHalf: false, cap: 0  },
+      { pr: 1.25, bloom: 1,   woven: 1,    stars: 1,    physics: true,  idleHalf: false, cap: 0  },
+      { pr: 1,    bloom: 0.5, woven: 0.55, stars: 0.67, physics: true,  idleHalf: true,  cap: 0  },
+      { pr: 0.85, bloom: 0.5, woven: 0.55, stars: 0.67, physics: true,  idleHalf: true,  cap: 0  },
+      { pr: 1,    bloom: 0,   woven: 0.35, stars: 0.4,  physics: false, idleHalf: true,  cap: 0  },
+      { pr: 0.7,  bloom: 0,   woven: 0.35, stars: 0.4,  physics: false, idleHalf: true,  cap: 30 },
+    ];
+    let level = Math.max(0, Math.min(LADDER.length - 1, Q.level | 0));
 
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+      // MSAA only where there is no bloom by default (touch devices); the bloom
+      // path renders through its own buffers, so canvas MSAA would be wasted work
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: isTouch, powerPreference: 'high-performance' });
     } catch (err) {
       canvas.style.display = 'none';
       console.warn('WebGL unavailable — falling back to CSS background.', err);
     }
 
     if (renderer) {
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, lowPower ? 1.25 : 1.5));
-      renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setClearColor(0x050509, 1);
 
       const scene = new THREE.Scene();
@@ -1667,12 +1746,14 @@
       const tmpCol = new THREE.Color();
 
       /* ---------- STARFIELD ---------- */
-      const STAR_COUNT = lowPower ? 1100 : 1800;
+      // built at full size; lower levels just draw fewer of them (positions are random)
+      const STAR_MAX = 1800;
+      let starCount = STAR_MAX;
       const starGeo = new THREE.BufferGeometry();
-      const sPos = new Float32Array(STAR_COUNT * 3);
-      const sCol = new Float32Array(STAR_COUNT * 3);
+      const sPos = new Float32Array(STAR_MAX * 3);
+      const sCol = new Float32Array(STAR_MAX * 3);
       const palette = [COL_CYAN, COL_VIOLET, new THREE.Color(0xffffff)];
-      for (let i = 0; i < STAR_COUNT; i++) {
+      for (let i = 0; i < STAR_MAX; i++) {
         sPos[i*3]   = (Math.random() - 0.5) * 95;
         sPos[i*3+1] = (Math.random() - 0.5) * 58;
         sPos[i*3+2] = -70 + Math.random() * 95;
@@ -1690,7 +1771,7 @@
       scene.add(stars);
 
       /* ---------- WIREFRAME TERRAIN ---------- */
-      const SEG = lowPower ? 40 : 48, SIZE = 80;
+      const SEG = 48, SIZE = 80;
       const terrGeo = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
       const baseXY = terrGeo.attributes.position.array.slice();
       const terrMat = new THREE.MeshBasicMaterial({
@@ -1721,23 +1802,32 @@
 
       // particles are sampled from the surface of a torus-knot — the "weave"
       const KNOT_R = 1.15, KNOT_T = 0.42;
-      const knotSrc  = new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, lowPower ? 150 : 240, lowPower ? 16 : 26);
+      const knotSrc  = new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, 240, 26);
       const knotAttr = knotSrc.attributes.position;
-      const WOVEN_COUNT = knotAttr.count;
+      const WOVEN_MAX = knotAttr.count;
+      let wovenCount = WOVEN_MAX;
 
-      const wovenOrig = new Float32Array(WOVEN_COUNT * 3); // rest positions (local space)
-      const wovenPos  = new Float32Array(WOVEN_COUNT * 3); // live positions
-      const wovenVel  = new Float32Array(WOVEN_COUNT * 3); // velocities
-      const wovenCol  = new Float32Array(WOVEN_COUNT * 3); // live colour (uploaded)
-      const wovenBase = new Float32Array(WOVEN_COUNT * 3); // resting colour (cyan)
-      const wovenHeat = new Float32Array(WOVEN_COUNT);     // 0..1 cursor excitation
+      // shuffled order, so drawing only the first N particles still covers the whole knot evenly
+      const order = new Uint32Array(WOVEN_MAX);
+      for (let i = 0; i < WOVEN_MAX; i++) order[i] = i;
+      for (let i = WOVEN_MAX - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        const tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+      }
+
+      const wovenOrig = new Float32Array(WOVEN_MAX * 3); // rest positions (local space)
+      const wovenPos  = new Float32Array(WOVEN_MAX * 3); // live positions
+      const wovenVel  = new Float32Array(WOVEN_MAX * 3); // velocities (units per 60 Hz frame)
+      const wovenCol  = new Float32Array(WOVEN_MAX * 3); // live colour (uploaded)
+      const wovenBase = new Float32Array(WOVEN_MAX * 3); // resting colour (cyan)
+      const wovenHeat = new Float32Array(WOVEN_MAX);     // 0..1 cursor excitation
 
       const _cCyanRest = new THREE.Color(0x00e5ff);
       const _cWhiteish = new THREE.Color(0xd6ffff);
       const _cMix      = new THREE.Color();
-      for (let i = 0; i < WOVEN_COUNT; i++) {
-        const ix = i*3, iy = ix+1, iz = ix+2;
-        const x = knotAttr.array[ix], y = knotAttr.array[iy], z = knotAttr.array[iz];
+      for (let i = 0; i < WOVEN_MAX; i++) {
+        const ix = i*3, iy = ix+1, iz = ix+2, s = order[i] * 3;
+        const x = knotAttr.array[s], y = knotAttr.array[s+1], z = knotAttr.array[s+2];
         wovenOrig[ix] = x; wovenOrig[iy] = y; wovenOrig[iz] = z;
         wovenPos[ix]  = x; wovenPos[iy]  = y; wovenPos[iz]  = z;
         // resting colour = cyan with a little white sparkle. Held in vertex
@@ -1754,7 +1844,7 @@
       wovenGeo.setAttribute('position', new THREE.BufferAttribute(wovenPos, 3));
       wovenGeo.setAttribute('color', new THREE.BufferAttribute(wovenCol, 3));
       const wovenMat = new THREE.PointsMaterial({
-        map: dotTex, size: lowPower ? 0.075 : 0.058, vertexColors: true,
+        map: dotTex, size: 0.058, vertexColors: true,
         transparent: true, opacity: 0.9, depthWrite: false,
         blending: THREE.AdditiveBlending, sizeAttenuation: true,
       });
@@ -1763,7 +1853,7 @@
 
       // faint inner wireframe gives the silk a sense of woven structure
       const wovenWire = new THREE.Mesh(
-        new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, lowPower ? 64 : 96, 8),
+        new THREE.TorusKnotGeometry(KNOT_R, KNOT_T, 96, 8),
         new THREE.MeshBasicMaterial({ color: COL_VIOLET.clone(), wireframe: true, transparent: true, opacity: 0.10 })
       );
       heroGroup.add(wovenWire);
@@ -1778,11 +1868,18 @@
       const camNormal  = new THREE.Vector3();
       const invMat     = new THREE.Matrix4();
       const WOVEN_R = 1.15, WOVEN_R2 = WOVEN_R * WOVEN_R;
-      // excited particles flare to this — super-bright violet so the existing
+      // excited particles flare to this — super-bright violet so the
       // UnrealBloom pass gives them the soft blur/glow
       const _vg = new THREE.Color(0xb066ff);
       const VG_R = _vg.r * 1.9, VG_G = _vg.g * 1.9, VG_B = _vg.b * 1.9;
       let wovenColorActive = false; // true while any particle still glowing
+
+      function resetWoven() {
+        wovenPos.set(wovenOrig); wovenVel.fill(0); wovenHeat.fill(0); wovenCol.set(wovenBase);
+        wovenGeo.attributes.position.needsUpdate = true;
+        wovenGeo.attributes.color.needsUpdate = true;
+        wovenColorActive = false;
+      }
 
       /* ---------- LAYOUT (responsive placement of hero object) ---------- */
       let heroBaseX = 3.2, heroBaseScale = 1;
@@ -1794,29 +1891,201 @@
       }
       layout();
 
-      /* ---------- BLOOM (optional, graceful) ---------- */
-      let composer = null;
-      async function setupBloom() {
-        if (lowPower) return; // skip heavy post-FX on weak / mobile devices
-        try {
-          const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = await Promise.all([
-            import('three/addons/postprocessing/EffectComposer.js'),
-            import('three/addons/postprocessing/RenderPass.js'),
-            import('three/addons/postprocessing/UnrealBloomPass.js'),
-            import('three/addons/postprocessing/OutputPass.js'),
-          ]);
-          composer = new EffectComposer(renderer);
-          composer.addPass(new RenderPass(scene, camera));
-          const bloom = new UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight), 0.75, 0.5, 0.15
-          );
-          composer.addPass(bloom);
-          composer.addPass(new OutputPass());
-          composer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      /* ---------- BLOOM (loaded on demand, only by levels that use it) ---------- */
+      let composer = null, bloomLoading = null, bloomScale = 1;
+      function ensureBloom() {
+        if (bloomLoading) return bloomLoading;
+        bloomLoading = Promise.all([
+          import('three/addons/postprocessing/EffectComposer.js'),
+          import('three/addons/postprocessing/RenderPass.js'),
+          import('three/addons/postprocessing/UnrealBloomPass.js'),
+          import('three/addons/postprocessing/OutputPass.js'),
+        ]).then(([{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }]) => {
+          const c = new EffectComposer(renderer);
+          c.addPass(new RenderPass(scene, camera));
+          const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.75, 0.5, 0.15);
+          // mid levels run the bloom blur chain on a smaller buffer
+          const baseSetSize = bloom.setSize.bind(bloom);
+          bloom.setSize = (w, h) => baseSetSize(Math.max(2, Math.round(w * bloomScale)),
+                                                 Math.max(2, Math.round(h * bloomScale)));
+          c.addPass(bloom);
+          c.addPass(new OutputPass());
+          composer = c;
+          applySize();
+        }).catch(() => { composer = null; }); // CDN failed: keep rendering without bloom
+        return bloomLoading;
+      }
+
+      function applySize() {
+        const L = LADDER[level];
+        const pr = Math.min(window.devicePixelRatio || 1, L.pr);
+        renderer.setPixelRatio(pr);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        if (composer) {
+          bloomScale = L.bloom || 1;
+          composer.setPixelRatio(pr);
           composer.setSize(window.innerWidth, window.innerHeight);
-        } catch (e) {
-          composer = null; // fall back to direct render
         }
+      }
+
+      function applyLevel(n) {
+        level = n;
+        const L = LADDER[n];
+        Q.level = n;
+        Q.tier = Q.levels[n];
+        document.documentElement.setAttribute('data-quality', Q.tier);
+        if (L.bloom) ensureBloom();
+        applySize();
+        starCount = Math.round(STAR_MAX * L.stars);
+        starGeo.setDrawRange(0, starCount);
+        wovenCount = Math.round(WOVEN_MAX * L.woven);
+        wovenGeo.setDrawRange(0, wovenCount);
+        wovenMat.size = 0.058 * Math.pow(1 / L.woven, 0.3); // fewer particles -> slightly bigger
+        if (!L.physics) resetWoven();
+        window.dispatchEvent(new CustomEvent('qualitychange', { detail: { level: n, tier: Q.tier } }));
+      }
+
+      /* ---------- FPS GOVERNOR ----------
+         Every 2 s, compare the real frame rate with the display's own rate.
+         - Too slow: step one level down, then judge the next 2 s. If two
+           steps down did not improve the fps, the slowdown comes from
+           somewhere else (another tab, a busy CPU, the browser itself): undo
+           them and stop stepping down for a while.
+         - Smooth for 6 s while rendering every frame: try one level up.
+         A level that proved too slow twice is not retried during this visit. */
+      const gov = {
+        baseline: 60, frames: 0, time: 0, good: 0, idle: false, settleUntil: 0,
+        pending: null, holdUntil: 0, holdFps: 0, holds: 0,
+        fails: LADDER.map(() => 0), lastFail: LADDER.map(() => -Infinity),
+      };
+      // levels can be identical on a given screen (pr 1.5 vs 1.25 on a 1x display)
+      const levelKey = i => {
+        const L = LADDER[i];
+        return [Math.min(window.devicePixelRatio || 1, L.pr), L.bloom, L.woven, L.stars, L.physics, L.cap].join('|');
+      };
+      // phones / tablets never step up into bloom: it is a decorative background
+      // and not worth the heat and battery there
+      const BEST_LEVEL = isTouch ? 4 : 0;
+      function stepFrom(n, dir) {
+        const cur = levelKey(n);
+        for (let i = n + dir; i >= BEST_LEVEL && i < LADDER.length; i += dir) if (levelKey(i) !== cur) return i;
+        return n;
+      }
+      function markFailed(n, now) {
+        const k = levelKey(n);
+        for (let i = 0; i < LADDER.length; i++) {
+          if (levelKey(i) === k) { gov.fails[i]++; gov.lastFail[i] = now; }
+        }
+      }
+      function setLevel(n, now) {
+        if (n === level) return;
+        applyLevel(n);
+        gov.frames = 0; gov.time = 0; gov.good = 0; gov.idle = false;
+        gov.settleUntil = now + 1500;
+        if (!Q.forced) {
+          try { localStorage.setItem(Q.storageKey, JSON.stringify({ gpu: Q.gpu, level: n })); } catch (e) {}
+        }
+      }
+      function govSample(now, ms, idle) {
+        if (Q.forced || now < gov.settleUntil || ms > 250) return; // ignore tab switches / one-off hitches
+        gov.frames++;
+        gov.time += ms;
+        if (idle) gov.idle = true;
+        if (gov.time < 2000) return;
+
+        const fps = gov.frames * 1000 / gov.time;
+        const wasIdle = gov.idle;
+        gov.frames = 0; gov.time = 0; gov.idle = false;
+        const tooSlow = Math.min(50, gov.baseline * 0.8);
+        const smooth  = Math.min(57, gov.baseline * 0.93);
+
+        // judge the last step down: keep it only if it helped
+        if (gov.pending) {
+          const p = gov.pending;
+          gov.pending = null;
+          if (fps < p.fps * 1.07) {
+            // two neighbouring levels can cost about the same: probe one more
+            // step before deciding the scene is not the bottleneck
+            const next = stepFrom(level, +1);
+            if (!p.probed && next !== level) {
+              gov.pending = { from: p.from, fps: p.fps, probed: true };
+              setLevel(next, now);
+              return;
+            }
+            // the hold doubles each time (1, 2, 4... min) so an outside slowdown
+            // does not make the scene flip quality every minute
+            gov.holdUntil = now + 60000 * Math.pow(2, gov.holds++);
+            gov.holdFps = p.fps;
+            setLevel(p.from, now);
+            return;
+          }
+          markFailed(p.from, now);
+        }
+
+        if (fps < tooSlow) {
+          gov.good = 0;
+          // on hold: only react if things got clearly worse than when the hold began
+          if (now < gov.holdUntil && fps > gov.holdFps * 0.85) return;
+          const n = stepFrom(level, +1);
+          if (n !== level) {
+            gov.pending = { from: level, fps };
+            setLevel(n, now);
+          }
+        } else if (fps >= smooth && !wasIdle) {
+          // only trust "smooth" while rendering every frame (not the idle 30 fps mode)
+          if (++gov.good >= 3) {
+            gov.good = 0;
+            const n = stepFrom(level, -1);
+            if (n !== level && gov.fails[n] < 2 && now - gov.lastFail[n] > 30000) setLevel(n, now);
+          }
+        } else {
+          gov.good = 0;
+        }
+      }
+
+      // the display's own frame rate (60, 120, 144, or 30 in battery-saver modes),
+      // so the governor never blames the scene for a slow screen
+      function measureDisplayRate() {
+        return new Promise(resolve => {
+          const gaps = [];
+          let last = 0, t0 = 0;
+          function f(now) {
+            if (!t0) t0 = now;
+            if (last) gaps.push(now - last);
+            last = now;
+            if (now - t0 < 600 && gaps.length < 45) { requestAnimationFrame(f); return; }
+            gaps.sort((a, b) => a - b);
+            const gap = gaps.length ? gaps[Math.floor(gaps.length * 0.25)] : 1000 / 60;
+            resolve(Math.max(24, Math.min(240, 1000 / gap)));
+          }
+          requestAnimationFrame(f);
+        });
+      }
+
+      /* ---------- DEBUG READOUT (?debug) ---------- */
+      let dbgEl = null, dbgFrames = 0, dbgRenders = 0, dbgT0 = 0;
+      if (Q.debug) {
+        dbgEl = document.createElement('div');
+        dbgEl.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:99999;font:12px/1.45 monospace;' +
+          'color:#7ff6ff;background:rgba(0,0,0,.78);padding:7px 10px;border:1px solid rgba(0,229,255,.4);' +
+          'border-radius:6px;pointer-events:none;white-space:pre';
+        document.body.appendChild(dbgEl);
+      }
+      function debugTick(now, rendered) {
+        if (!dbgEl) return;
+        dbgFrames++;
+        if (rendered) dbgRenders++;
+        if (!dbgT0) { dbgT0 = now; return; }
+        if (now - dbgT0 < 500) return;
+        const s = (now - dbgT0) / 1000;
+        const L = LADDER[level];
+        dbgEl.textContent =
+          `${Math.round(dbgFrames / s)} fps · 3D ${Math.round(dbgRenders / s)} fps · display ~${Q.displayHz || '?'} Hz\n` +
+          `level ${level} (${Q.tier})${Q.forced ? ' · forced' : ''}\n` +
+          `pixel ratio ${renderer.getPixelRatio().toFixed(2)} · bloom ${composer && L.bloom ? '×' + L.bloom : 'off'}\n` +
+          `particles ${wovenCount} · stars ${starCount}\n` +
+          Q.gpu.replace(/^ANGLE \(/, '').replace(/\)$/, '').slice(0, 64);
+        dbgFrames = 0; dbgRenders = 0; dbgT0 = now;
       }
 
       /* ---------- INTERACTION STATE ---------- */
@@ -1826,11 +2095,12 @@
         pointer.ty = (e.clientY / window.innerHeight) * 2 - 1;
       });
 
-      let scrollTotal = 0, scrollLerp = 0, heroLocal = 0, heroLerp = 0;
+      let scrollTotal = 0, scrollLerp = 0, heroLocal = 0, heroLerp = 0, lastScrollAt = 0;
       function readScroll() {
         const max = document.documentElement.scrollHeight - window.innerHeight;
         scrollTotal = max > 0 ? window.scrollY / max : 0;
         heroLocal = Math.min(window.scrollY / window.innerHeight, 1);
+        lastScrollAt = performance.now();
       }
       window.addEventListener('scroll', readScroll, { passive: true });
       readScroll();
@@ -1839,24 +2109,24 @@
       function onResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+        applySize();
         layout();
         readScroll();
-        if (prefersReduced) renderFrame(0);
+        if (prefersReduced) renderFrame(0, 0);
       }
       window.addEventListener('resize', onResize);
 
       /* ---------- ANIMATE ---------- */
-      const clock = new THREE.Clock();
+      // All motion is scaled by real elapsed time, so it runs at the same speed
+      // at 30, 60 or 144 fps. f = 1 at 60 fps, 2 at 30 fps, etc.
       const terrPos = terrGeo.attributes.position;
       let frameTick = 0;
 
       /* ---------- WOVEN SILK: mouse repel + spring-back physics ---------- */
-      function updateWoven(vis) {
-        // weak/touch devices and reduced-motion keep a rigid glowing knot;
+      function updateWoven(vis, f) {
+        // touch devices, reduced-motion and low levels keep a rigid glowing knot;
         // also skip the loop entirely once the hero has scrolled out of view
-        if (lowPower || prefersReduced || vis < 0.04) return;
+        if (!LADDER[level].physics || isTouch || prefersReduced || vis < 0.04 || f <= 0) return;
 
         camera.updateMatrixWorld();
         heroGroup.updateMatrixWorld();
@@ -1875,10 +2145,14 @@
         }
         const mlx = mouseLocal.x, mly = mouseLocal.y, mlz = mouseLocal.z;
 
+        // per-60Hz-frame constants, rescaled to this frame's length
+        const push = 0.11 * f, spring = 0.020 * f;
+        const damp = Math.pow(0.90, f), cool = Math.pow(0.95, f);
+
         const pos = wovenPos, orig = wovenOrig, vel = wovenVel;
         const col = wovenCol, base = wovenBase, heat = wovenHeat;
         let anyHeat = false;
-        for (let i = 0; i < WOVEN_COUNT; i++) {
+        for (let i = 0; i < wovenCount; i++) {
           const ix = i*3, iy = ix+1, iz = ix+2;
           const px = pos[ix], py = pos[iy], pz = pos[iz];
           let vx = vel[ix], vy = vel[iy], vz = vel[iz];
@@ -1893,23 +2167,23 @@
               const ex = prox * 1.5;              // boost so a wider halo flares
               if (ex > h) h = ex > 1 ? 1 : ex;    // excite -> flares violet
               if (d2 > 1e-5) {
-                const f = (WOVEN_R - d) * 0.11 / d; // push outward, stronger up close
-                vx += dx * f; vy += dy * f; vz += dz * f;
+                const fo = (WOVEN_R - d) * push / d; // push outward, stronger up close
+                vx += dx * fo; vy += dy * fo; vz += dz * fo;
               }
             }
           }
           // spring toward rest position
-          vx += (orig[ix] - px) * 0.020;
-          vy += (orig[iy] - py) * 0.020;
-          vz += (orig[iz] - pz) * 0.020;
+          vx += (orig[ix] - px) * spring;
+          vy += (orig[iy] - py) * spring;
+          vz += (orig[iz] - pz) * spring;
           // damping
-          vx *= 0.90; vy *= 0.90; vz *= 0.90;
+          vx *= damp; vy *= damp; vz *= damp;
 
-          pos[ix] = px + vx; pos[iy] = py + vy; pos[iz] = pz + vz;
+          pos[ix] = px + vx * f; pos[iy] = py + vy * f; pos[iz] = pz + vz * f;
           vel[ix] = vx; vel[iy] = vy; vel[iz] = vz;
 
           // colour: blend resting cyan -> bright violet by heat, then let it decay
-          h *= 0.95;
+          h *= cool;
           heat[i] = h;
           if (h > 0.002) {
             anyHeat = true;
@@ -1926,15 +2200,20 @@
         wovenColorActive = anyHeat;
       }
 
-      function renderFrame(t) {
+      function renderFrame(t, dt) {
+        const f = Math.min(dt * 60, 3);
+        const ease = k => 1 - Math.pow(1 - k, f);   // frame-rate independent lerp factor
+        scrollLerp += (scrollTotal - scrollLerp) * ease(0.06);
+        heroLerp   += (heroLocal  - heroLerp)  * ease(0.08);
+
         // colour journey: cyan -> violet -> magenta
         if (scrollLerp < 0.5) tmpCol.copy(COL_CYAN).lerp(COL_VIOLET, scrollLerp * 2);
         else tmpCol.copy(COL_VIOLET).lerp(COL_MAGENTA, (scrollLerp - 0.5) * 2);
         terrMat.color.copy(tmpCol);
         wovenWire.material.color.copy(tmpCol);
 
-        // terrain waves (update every 2nd frame for performance)
-        if ((frameTick++ & 1) === 0) {
+        // terrain waves (every 2nd frame at high fps, every frame when the fps is low)
+        if (dt > 0.025 || (frameTick++ & 1) === 0) {
           for (let i = 0; i < terrPos.count; i++) {
             const x = baseXY[i*3], y = baseXY[i*3+1];
             const z = Math.sin(x * 0.28 + t) * 1.1 + Math.cos(y * 0.32 + t * 0.8) * 1.1
@@ -1946,60 +2225,85 @@
 
         // starfield drift toward camera
         const sp = starGeo.attributes.position.array;
-        const speed = 0.04 + scrollLerp * 0.5;
-        for (let i = 2; i < sp.length; i += 3) {
-          sp[i] += speed;
+        const drift = (0.04 + scrollLerp * 0.5) * f;
+        for (let i = 2, n = starCount * 3; i < n; i += 3) {
+          sp[i] += drift;
           if (sp[i] > 25) sp[i] -= 95;
         }
         starGeo.attributes.position.needsUpdate = true;
-        stars.rotation.z += 0.0004;
+        stars.rotation.z += 0.0004 * f;
 
         // hero woven knot: rotate, breathe, fade out on scroll
         const vis = 1 - heroLerp;
         const breathe = 1 + Math.sin(t * 1.5) * 0.05;
         heroGroup.position.set(heroBaseX, 0.3 + heroLerp * 4, 0);
         heroGroup.scale.setScalar(heroBaseScale * breathe * Math.max(vis, 0.0001));
-        heroGroup.rotation.y += 0.0026;
+        heroGroup.rotation.y += 0.0026 * f;
         heroGroup.rotation.x = pointer.y * 0.25;
         heroGroup.rotation.z = pointer.x * 0.12;
         wovenMat.opacity = 0.9 * vis;
         wovenWire.material.opacity = 0.10 * vis;
 
         // camera: parallax + gentle scroll dolly/tilt
-        pointer.x += (pointer.tx - pointer.x) * 0.05;
-        pointer.y += (pointer.ty - pointer.y) * 0.05;
+        pointer.x += (pointer.tx - pointer.x) * ease(0.05);
+        pointer.y += (pointer.ty - pointer.y) * ease(0.05);
         camera.position.x = pointer.x * 1.4;
         camera.position.y = 0.6 + pointer.y * -0.6 + scrollLerp * 2.4;
         camera.position.z = 9 - scrollLerp * 2.2;
         camera.lookAt(0, -0.5 - scrollLerp * 2.2, -4);
 
         // woven silk interaction (uses the freshly-smoothed pointer above)
-        updateWoven(vis);
+        updateWoven(vis, f);
 
-        if (composer) composer.render();
+        if (composer && LADDER[level].bloom) composer.render();
         else renderer.render(scene, camera);
       }
 
-      let raf = null;
-      function loop() {
-        scrollLerp += (scrollTotal - scrollLerp) * 0.06;
-        heroLerp  += (heroLocal  - heroLerp)  * 0.08;
-        renderFrame(clock.getElapsedTime());
+      let raf = null, started = false;
+      let lastRaf = 0, lastRender = 0, elapsed = 0;
+      function loop(now) {
+        raf = requestAnimationFrame(loop);
+        const ms = lastRaf ? now - lastRaf : 1000 / 60;
+        lastRaf = now;
+
+        const L = LADDER[level];
+        // past the hero and not scrolling: only the slow background drift is on screen
+        const idle = L.idleHalf && heroLerp > 0.97 && now - lastScrollAt > 500;
+        const cap = L.cap || (idle ? 30 : 0);
+        govSample(now, ms, idle && !L.cap);
+
+        if (cap && lastRender && now - lastRender < 800 / cap) { debugTick(now, false); return; }
+        const dt = lastRender ? Math.min(Math.max(now - lastRender, 0) / 1000, 0.1) : 1 / 60;
+        lastRender = now;
+        elapsed += dt;
+        renderFrame(elapsed, dt);
+        debugTick(now, true);
+      }
+
+      function start() {
+        if (raf || prefersReduced) return;
+        lastRaf = 0; lastRender = 0;
+        gov.frames = 0; gov.time = 0; gov.pending = null;
+        gov.settleUntil = performance.now() + 2500; // let page-load work finish first
         raf = requestAnimationFrame(loop);
       }
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = null; }
-        else if (!raf && !prefersReduced) loop();
+        else if (started) start();
       });
 
-      setupBloom().finally(() => {
-        if (prefersReduced) {
-          // static, accessible: render a single frame, no continuous motion
-          renderFrame(0);
-        } else {
-          loop();
-        }
+      // handy from the console: PF_QUALITY.setLevel(0..5)
+      Q.ladder = LADDER;
+      Q.setLevel = n => setLevel(Math.max(0, Math.min(LADDER.length - 1, n | 0)), performance.now());
+
+      applyLevel(level);
+      Promise.all([LADDER[level].bloom ? ensureBloom() : null, measureDisplayRate()]).then(([, hz]) => {
+        gov.baseline = hz;
+        Q.displayHz = Math.round(hz);
+        started = true;
+        if (prefersReduced) renderFrame(0, 0); // static, accessible: a single frame, no motion
+        else start();
       });
     }
   </script>

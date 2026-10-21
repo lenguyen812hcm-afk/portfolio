@@ -1031,8 +1031,9 @@ footer {
 .hud-tag, .hud-code, .hud-foot {
   position:absolute; font-family: var(--mono); font-size:.58rem; letter-spacing:.12em;
   text-transform:uppercase; color: rgba(255,255,255,.85);
-  background: rgba(0,0,0,.34); border:1px solid rgba(255,255,255,.14);
-  padding:.2rem .45rem; border-radius:4px; backdrop-filter: blur(4px);
+  /* no backdrop blur here: ~110 of these sit over the moving 3D canvas */
+  background: rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.14);
+  padding:.2rem .45rem; border-radius:4px;
   display:flex; align-items:center; gap:.35rem; white-space:nowrap;
 }
 .hud-tag { top:13px; left:34px; color: var(--cyan); border-color: rgba(0,229,255,.32); }
@@ -1060,6 +1061,41 @@ footer {
 /* ---- responsive ---- */
 @media (max-width: 980px){ .services-grid{ grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 520px){ .services-grid{ grid-template-columns: 1fr; } .container{ padding-block: 5.5rem; } }
+
+/* ===== ADAPTIVE QUALITY =====
+   html[data-quality] = high | medium | low. Set by the head script from the
+   device, then updated live by the 3D scene's FPS governor.
+   Backdrop blur over the moving WebGL canvas has to be recomputed every
+   frame, so lower tiers swap it for a more opaque fill. */
+html[data-quality="medium"] .fx-noise,
+html[data-quality="medium"] .fx-grid,
+html[data-quality="low"] .fx-noise,
+html[data-quality="low"] .fx-grid { display: none; }
+
+/* medium: blur kept on the navbar only · low: no blur at all */
+html[data-quality="medium"] :is(.hero-badge, .btn-outline, .stat, .glass-panel, .project-card, .contact-card, .service-card, footer),
+html[data-quality="low"] :is(.hero-badge, .btn-outline, .stat, .glass-panel, .project-card, .contact-card, .service-card, footer),
+html[data-quality="low"] #navbar {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-quality="medium"] :is(.hero-badge, .btn-outline, .stat),
+html[data-quality="low"] :is(.hero-badge, .btn-outline, .stat) { background: rgba(14,14,24,0.72); }
+html[data-quality="medium"] .glass-panel,
+html[data-quality="low"] .glass-panel { background: rgba(10,10,18,0.84); }
+html[data-quality="medium"] :is(.project-card, .contact-card),
+html[data-quality="low"] :is(.project-card, .contact-card) { background: rgba(12,12,20,0.86); }
+html[data-quality="medium"] .service-card,
+html[data-quality="low"] .service-card { background: rgba(12,12,20,0.82); }
+html[data-quality="medium"] .service-card:hover,
+html[data-quality="low"] .service-card:hover { background: rgba(16,16,28,0.88); }
+html[data-quality="medium"] footer,
+html[data-quality="low"] footer { background: rgba(5,5,9,0.9); }
+html[data-quality="low"] #navbar { background: rgba(5,5,9,0.88); }
+html[data-quality="low"] #navbar.scrolled { background: rgba(5,5,9,0.95); }
+
+/* low: no trailing cursor glow */
+html[data-quality="low"] .cursor-glow { display: none; }
 
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {

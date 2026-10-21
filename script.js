@@ -53,24 +53,42 @@
     let mx = window.innerWidth / 2, my = window.innerHeight / 2;
     let gx = mx, gy = my;
 
+    // move via the CSS `translate` property: compositor-only, no layout per
+    // mousemove; the stylesheet's `transform` still centres / scales them
+    const hasTranslate = window.CSS && CSS.supports && CSS.supports('translate', '1px 1px');
+    const place = hasTranslate
+      ? (el, x, y) => { el.style.translate = x + 'px ' + y + 'px'; }
+      : (el, x, y) => { el.style.left = x + 'px'; el.style.top = y + 'px'; };
+    // the glow is hidden on the low quality tier (see style.css)
+    const glowWanted = () => !window.PF_QUALITY || window.PF_QUALITY.tier !== 'low';
+    let glowRaf = null, glowLast = 0;
+
     window.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
       // dot + ring track the cursor instantly — set right in the event so they
       // never lag behind, regardless of the 3D scene's framerate
-      if (dot)  { dot.style.left  = mx + 'px'; dot.style.top  = my + 'px'; dot.style.opacity  = 1; }
-      if (ring) { ring.style.left = mx + 'px'; ring.style.top = my + 'px'; ring.style.opacity = 1; }
-      if (glow) glow.style.opacity = 1;
+      if (dot)  { place(dot, mx, my);  dot.style.opacity  = 1; }
+      if (ring) { place(ring, mx, my); ring.style.opacity = 1; }
+      if (glow) {
+        glow.style.opacity = 1;
+        if (!glowRaf && glowWanted()) glowRaf = requestAnimationFrame(follow);
+      }
     });
     window.addEventListener('mouseleave', () => {
       [glow, dot, ring].forEach(el => el && (el.style.opacity = 0));
     });
 
-    // only the big soft glow keeps a gentle trailing lerp (it's meant to lag)
-    (function follow() {
-      gx += (mx - gx) * 0.12; gy += (my - gy) * 0.12;
-      if (glow) { glow.style.left = gx + 'px'; glow.style.top = gy + 'px'; }
-      requestAnimationFrame(follow);
-    })();
+    // only the big soft glow keeps a gentle trailing lerp (it's meant to lag).
+    // Time-based, so it trails the same at any fps; sleeps once it has caught up.
+    function follow(now) {
+      const ms = glowLast ? Math.min(now - glowLast, 100) : 1000 / 60;
+      glowLast = now;
+      const k = 1 - Math.pow(0.88, ms / (1000 / 60));
+      gx += (mx - gx) * k; gy += (my - gy) * k;
+      place(glow, gx, gy);
+      if (Math.abs(mx - gx) + Math.abs(my - gy) > 0.3) glowRaf = requestAnimationFrame(follow);
+      else { glowRaf = null; glowLast = 0; }
+    }
 
     $$('a, button, .project-card, .tab-btn, .filter-btn, .contact-card, .service-card').forEach(el => {
       el.addEventListener('mouseenter', () => ring && ring.classList.add('hovering'));
@@ -180,11 +198,15 @@
     $$('[data-magnetic]').forEach(el => {
       let targetX = 0, targetY = 0;
       let currentX = 0, currentY = 0;
-      let raf = null;
+      let raf = null, last = 0;
 
-      const animate = () => {
-        currentX += (targetX - currentX) * 0.16;
-        currentY += (targetY - currentY) * 0.16;
+      // time-based easing: same feel at 30, 60 or 144 fps
+      const animate = now => {
+        const ms = last ? Math.min(now - last, 100) : 1000 / 60;
+        last = now;
+        const k = 1 - Math.pow(1 - 0.16, ms / (1000 / 60));
+        currentX += (targetX - currentX) * k;
+        currentY += (targetY - currentY) * k;
         el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
         if (Math.abs(targetX - currentX) > 0.05 || Math.abs(targetY - currentY) > 0.05) {
           raf = requestAnimationFrame(animate);
@@ -193,6 +215,7 @@
           currentY = targetY;
           el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
           raf = null;
+          last = 0;
         }
       };
 
